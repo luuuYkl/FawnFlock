@@ -25,3 +25,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### Run back side server
 Fill in your username and password in the. env file, then click on the exe file to start using your MySQL/Mariadb database
+Like this:
+```
+DATABASE_URL="mysql://username:password@localhost/test"
+```
+create in back side/.env
