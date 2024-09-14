@@ -1,15 +1,15 @@
 <template>
   <div class="login-page">
-   <div class="head">
-    <img src="src\assets\logo.png" alt="Logo" class="logo" />
-    <h1 class="HeadLine" >FawnFlock  </h1>
-    <p class="HeadLine">谁啊黑带大师较大三等奖卡的</p>
-   </div>
+    <div class="head">
+      <img src="@/assets/2022-09-16.png" alt="Logo" class="logo" />
+      <h1 class="HeadLine">FawnFlock </h1>
+      <p class="HeadLine">谁啊黑带大师较大三等奖卡的</p>
+    </div>
 
     <div class="login-buttons">
       <button class="login-button" id="wechat-button">微信号登录</button>
       <p class="or-text">or</p>
-      <button class="login-button"  @click="goToLoginPagePhoneNumber" >手机号登陆</button>
+      <button class="login-button" @click="goToLoginPagePhoneNumber">手机号登陆</button>
     </div>
 
     <div class="privacy-section">
@@ -33,8 +33,10 @@ export default {
   name: "LoginPage1",
   methods: {
     goToLoginPagePhoneNumber() {
-      this.$router.push('/LoginPagePhoneNumber');
-    },
+      console.log('跳转到手机号登录页');
+      this.$router.push('/LoginPagePhoneNumber').catch(err => console.log(err));
+    }
+
   },
 };
 
@@ -54,11 +56,13 @@ export default {
 .logo {
   width: 50px;
   height: 50px;
-  margin-bottom: 180px;
-  object-fit: contain; /* 保持图片比例，且图片不会超出容器 */
+  margin-top: 100px;
+  margin-bottom: 80px;
+  object-fit: contain;
+  /* 保持图片比例，且图片不会超出容器 */
 }
 
-.head{
+.head {
   margin-bottom: 200px;
 }
 
