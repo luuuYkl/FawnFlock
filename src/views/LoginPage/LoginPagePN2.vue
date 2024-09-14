@@ -18,7 +18,7 @@
                 <div contenteditable="true" class="code-box"></div>
             </div>
 
-            <button class="login-button">验证码登陆</button>
+            <button class="login-button" @click="handleRegistrationSuccess">验证码登陆</button>
 
             <button class="resend-button">重新发送</button>
         </div>
@@ -28,6 +28,13 @@
 <script>
 export default {
     name: 'LoginPagePN2',
+    methods: {
+    handleRegistrationSuccess() {
+      // 注册成功后保存登录状态
+      localStorage.setItem('isLoggedIn', 'true');
+      this.$router.push('/HomePage'); // 跳转到首页
+    }
+  }
 
 };
 </script>
