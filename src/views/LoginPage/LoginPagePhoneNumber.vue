@@ -53,9 +53,28 @@ export default {
       }
 
       try {
-        const response = await axios.post('/api/submitPhoneNumber', {//配置api地址
-          phoneNumber: this.countryCode + this.phoneNumber
+
+        let headersList = {
+         "Content-Type": "application/json" 
+        }
+
+        let bodyContent = JSON.stringify({
+          "username": "te",
+          "email": "te@qq.com",
+          "password": "123456",
+          "phone": this.countryCode + this.phoneNumber,
+          "avatar_url": "123",
+          "bio": "123"
         });
+
+        let reqOptions = {
+          url: "http://127.0.0.1:7878/register",
+          method: "POST",
+          headers: headersList,
+          data: bodyContent,
+        }
+        let response = await axios.request(reqOptions);
+        console.log(response.data);
         console.log('手机号已发送:', response.data);
         this.$router.push('/LoginPagePN2');
       } catch (error) {
