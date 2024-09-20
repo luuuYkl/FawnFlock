@@ -53,7 +53,8 @@ export default {
       }
 
       try {
-        const response = await axios.post('/api/submitPhoneNumber', {//配置api地址
+        const response = await axios.post('http://127.0.0.1:7878/register', {
+          //配置api地址
           phoneNumber: this.countryCode + this.phoneNumber
         });
         console.log('手机号已发送:', response.data);
