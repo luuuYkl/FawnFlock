@@ -1,7 +1,7 @@
 <template>
     <div class="comment-button">
       <!-- 显示评论按钮，点击时触发跳转 -->
-      <button @click="navigateToComments">Comment</button>
+      <button @click="navigateToComments">comments</button>
       <!-- 显示评论数，超过999时显示999+ -->
       <span class="comment-count">{{ displayCommentCount }}</span>
     </div>

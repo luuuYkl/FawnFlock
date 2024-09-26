@@ -10,7 +10,7 @@
 
 <script>
 export default {
-    name: 'AppFooter'  // 保持名称为多词，方便识别
+    name: 'AppFooter'  // 保持名称为多词，方便识别.
 };
 </script>
 

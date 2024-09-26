@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import AppFooter from './Footer.vue'; // 确保正确导入组件
+import AppFooter from './Footer.vue'; // 确保正确导入组件.
 
 export default {
     components: {

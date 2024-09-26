@@ -147,7 +147,7 @@ export default {
 
 .post-actions {
     display: flex;
-    /* 使用 flexbox 布局 */
+    /* 使用 flexbox 布局. */
     justify-content: space-between;
     /* 左右分隔 */
     margin-top: 12px;

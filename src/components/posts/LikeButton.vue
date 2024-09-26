@@ -22,7 +22,7 @@
     
     data() {
       return {
-        // 初始化点赞数为传入的初始点赞数
+        // 初始化点赞数为传入的初始点赞数.
         likeCount: this.initialLikes
       };
     },
