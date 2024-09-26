@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "axios": "^1.7.7",
@@ -17,16 +19,32 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@chromatic-com/storybook": "^1.9.0",
+    "@storybook/addon-interactions": "^8.3.2",
+    "@storybook/addon-onboarding": "^8.3.2",
+    "@storybook/blocks": "^8.3.2",
+    "@storybook/test": "^8.3.2",
+    "@storybook/vue3": "^8.3.2",
+    "@storybook/vue3-vite": "^8.3.2",
+    "@types/find-cache-dir": "^5.0.0",
+    "@types/glob": "^8.1.0",
+    "@types/hast": "^3.0.4",
+    "@types/mdast": "^4.0.4",
+    "@types/prop-types": "^15.7.13",
+    "@types/unist": "^3.0.3",
+    "@types/uuid": "^10.0.0",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-plugin-vuex": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "eslint": "^7.32.0",
+    "eslint-plugin-storybook": "^0.8.0",
     "eslint-plugin-vue": "^8.0.3",
     "lint-staged": "^11.1.2",
     "sass": "^1.32.7",
-    "sass-loader": "^12.0.0"
+    "sass-loader": "^12.0.0",
+    "storybook": "^8.3.2"
   },
   "eslintConfig": {
     "root": true,
@@ -35,7 +53,8 @@
     },
     "extends": [
       "plugin:vue/vue3-essential",
-      "eslint:recommended"
+      "eslint:recommended",
+      "plugin:storybook/recommended"
     ],
     "parserOptions": {
       "parser": "@babel/eslint-parser"

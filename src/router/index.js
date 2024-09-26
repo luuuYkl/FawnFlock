@@ -29,6 +29,11 @@ const routes = [
     name: 'HomePage',
     component: () => import('../views/HomePage/HomePage.vue'),
   },
+  {
+    path: '/CommentSection',
+    name: 'CommentSection',
+    component: () => import(/* webpackChunkName: "about" */ '../components/posts/CommentSection.vue')
+  }
 ];
 
 
