@@ -7,6 +7,9 @@ node_modules
 .env.local
 .env.*.local
 
+#排除back side文件夹的.env文件
+!/back/.env
+
 # Log files
 npm-debug.log*
 yarn-debug.log*
