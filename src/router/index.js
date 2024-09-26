@@ -11,7 +11,7 @@ const routes = [
   {
     path: '/about',
     name: 'About',
-    // 懒加载路由
+    // 懒加载路由.
     component: () => import('../views/AboutView.vue'),
   },
   {
@@ -29,6 +29,11 @@ const routes = [
     name: 'HomePage',
     component: () => import('../views/HomePage/HomePage.vue'),
   },
+  {
+    path: '/CommentSection',
+    name: 'CommentSection',
+    component: () => import(/* webpackChunkName: "about" */ '../components/posts/CommentSection.vue')
+  }
 ];
 
 
