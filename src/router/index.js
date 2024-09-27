@@ -27,12 +27,12 @@ const routes = [
   {
     path: '/HomePage',
     name: 'HomePage',
-    component: () => import('../views/HomePage/HomePage.vue'),
+    component: () => import('../components/PostHomePage.vue'),
   },
   {
-    path: '/CommentSection',
-    name: 'CommentSection',
-    component: () => import(/* webpackChunkName: "about" */ '../components/posts/CommentSection.vue')
+    path: '/post/:id',
+    name: 'PostDetail',
+    component: () => import('../components/posts/PostDetail.vue')
   }
 ];
 
