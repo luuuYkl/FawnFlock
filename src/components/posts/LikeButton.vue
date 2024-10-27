@@ -1,3 +1,5 @@
+<!-- 用于显示点赞数量的组件 -->
+
 <template>
   <div class="like-button">
     <button @click="likePost">
@@ -29,24 +31,25 @@ export default {
   },
 
   methods: {
-    async likePost() {
-      try {
-        // 发送请求到后端，增加点赞数
-        const response = await axios.post(`/api/posts/${this.postId}/like`);
+  async likePost() {
+    try {
+      // 发送请求到后端，使用指定的点赞链接
+      const response = await axios.post(`/posts/${this.postId}/like_count`);
 
-        if (response.data.success) {
-          // 增加点赞数
-          this.likeCount += 1;
-        } else {
-          // 处理错误情况
-          console.error('Failed to like post:', response.data.message);
-        }
-      } catch (error) {
-        // 处理请求错误
-        console.error('Error liking post:', error);
+      if (response.data.success) {
+        // 成功时增加点赞数
+        this.likeCount += 1;
+      } else {
+        // 如果后端返回错误信息，打印出来
+        console.error('Failed to like post:', response.data.message);
       }
+    } catch (error) {
+      // 处理请求错误
+      console.error('Error liking post:', error);
     }
   }
+}
+
 };
 </script>
 
