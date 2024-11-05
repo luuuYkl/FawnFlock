@@ -34,7 +34,7 @@ export default {
   async likePost() {
     try {
       // 发送请求到后端，使用指定的点赞链接
-      const response = await axios.post(`/posts/${this.postId}/like_count`);
+      const response = await axios.post(`posts/${this.postId}/like_count`);
 
       if (response.data.success) {
         // 成功时增加点赞数
