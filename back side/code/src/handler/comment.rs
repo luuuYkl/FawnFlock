@@ -2,10 +2,27 @@ use crate::connect;
 use crate::db::schema::comments::dsl::*;
 use crate::model::comment_model::{Comment, NewComment};
 
-use crate::handler::post::{*,self};
+use crate::handler::post::{self, *};
 
 use diesel::prelude::*;
 use salvo::{prelude::*, Error};
+
+#[handler]
+pub async fn get_all_comment(req: &mut Request, res: &mut Response) -> Result<(), Error> {
+    let mut conn = connect().unwrap();
+    let p_id = req.param::<i32>("post_id").unwrap();
+    let result = comments.filter(post_id.eq(p_id)).load::<Comment>(&mut conn);
+    match result {
+        Ok(data) => {
+            res.render(Json(data));
+            Ok(())
+        }
+        Err(e) => {
+            res.render(Json(&e.to_string()));
+            Ok(())
+        }
+    }
+}
 
 #[handler]
 pub async fn get_comment(req: &mut Request, res: &mut Response) -> Result<(), Error> {
@@ -38,9 +55,7 @@ pub async fn add_comment(req: &mut Request, res: &mut Response) -> Result<(), Er
         .values(&new_comment)
         .execute(&mut conn);
     match result {
-        Ok(_) => {
-            change_comment_count(p_id, res, 1)
-        }
+        Ok(_) => change_comment_count(p_id, res, 1),
         Err(e) => {
             res.render(Json(&e.to_string()));
             Ok(())

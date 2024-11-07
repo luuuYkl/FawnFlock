@@ -100,6 +100,7 @@ async fn main() {
                         )
                         .push(
                             Router::with_path("/comment")
+                                .post(handler::comment::get_all_comment)
                                 .push(
                                     Router::with_path("/comment_count")
                                         .post(handler::comment::get_comment_count),
