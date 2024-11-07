@@ -1,79 +1,76 @@
 <template>
-    <div class="post-card">
-      <div class="post-content">
-        <h2>{{ post.title }}</h2>
-        <p>{{ post.body }}</p>
-      </div>
-      <!-- 点赞组件 -->
-      <div class="post-buttons">
-        <like-button :initialLikes="post.likes" />
-        <!-- 评论按钮组件 -->
-        <comment-button 
-          :initialCommentCount="post.commentCount" 
-          style="margin: auto;" 
-          @click="navigateToPostDetail" 
-        />
+  <div class="post-card">
+    <div class="post-content">
+      <h2>{{ post.title }}</h2>
+      <p>{{ post.content }}</p>
+      <div class="post-meta">
+        <span>作者: {{ post.author }}</span>
+        <span>发布时间: {{ formatDate(post.created_at) }}</span>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import LikeButton from './LikeButton.vue';
-  import CommentButton from './CommentButton.vue';
-  import { useRouter } from 'vue-router';
-  
-  export default {
-    components: {
-      LikeButton,
-      CommentButton
-    },
-    props: {
-      post: {
-        type: Object,
-        required: true
-      }
-    },
-    setup(props) {
-      const router = useRouter();
-  
-      const navigateToPostDetail = () => {
-        router.push({ name: 'PostDetail', params: { id: props.post.id } }); // 从 props 中获取 post.id
-      };
-  
-      return {
-        navigateToPostDetail
-      };
-    },
-  };
-  </script>
-  
-  <style scoped>
-  /* 帖子组件的样式 */
-  .post-card {
-    border: 1px solid #ddd; /* 边框样式 */
-    padding: 15px; /* 内边距 */
-    margin-bottom: 15px; /* 下边距 */
-    border-radius: 8px; /* 圆角 */
-    background-color: #f9f9f9; /* 背景颜色 */
-    transition: box-shadow 0.3s; /* 添加阴影过渡效果 */
+    <!-- 点赞和评论按钮 -->
+    <div class="post-buttons">
+      <LikeButton :postId="post.post_id" :initialLikes="post.like_count" />
+      <CommentButton :postId="post.post_id" :initialCommentCount="post.comment_count" />
+    </div>
+  </div>
+</template>
+
+<script>
+import LikeButton from './LikeButton.vue';
+import CommentButton from './CommentButton.vue';
+
+export default {
+  props: {
+    post: {
+      type: Object,
+      required: true
+    }
+  },
+  components: {
+    LikeButton,
+    CommentButton
+  },
+  methods: {
+    // 格式化时间显示
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    }
   }
-  
-  .post-card:hover {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 悬停时的阴影效果 */
-  }
-  
-  .post-content h2 {
-    font-size: 1.5em; /* 标题字体大小 */
-    margin: 0 0 10px; /* 标题与内容之间的下边距 */
-  }
-  
-  .post-content p {
-    font-size: 1em; /* 内容字体大小 */
-    color: #333; /* 内容字体颜色 */
-  }
-  
-  .post-buttons {
-    display: flex; /* 按钮组采用flex布局 */
-  } 
-  </style>
-  
+};
+</script>
+
+<style scoped>
+.post-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: box-shadow 0.3s;
+}
+
+.post-card:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.post-content h2 {
+  font-size: 1.5em;
+  margin: 0 0 10px;
+}
+
+.post-content p {
+  font-size: 1em;
+  color: #333;
+}
+
+.post-meta {
+  font-size: 0.9em;
+  color: #777;
+}
+
+.post-buttons {
+  display: flex;
+}
+</style>

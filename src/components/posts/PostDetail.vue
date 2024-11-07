@@ -1,3 +1,6 @@
+<!-- 由首页帖子流点击评论组件跳转进入的帖子详细页面 -->
+<!-- 需要读取后端评论详细数据并展示 -->
+
 <template>
     <div class="post-detail">
         <!-- 上部分：原帖展示 -->
@@ -9,11 +12,8 @@
             <div class="post-buttons" style="display: flex;">
                 <like-button :initialLikes="post.likes" />
                 <!-- 评论按钮组件 -->
-                <comment-button 
-                    :initialCommentCount="post.commentCount" 
-                    @click="navigateToPostDetail" 
-                    style="margin: auto;"
-                />
+                <comment-button :initialCommentCount="post.commentCount" @click="navigateToPostDetail"
+                    style="margin: auto;" />
             </div>
         </div>
 
@@ -22,11 +22,7 @@
             <h3>评论</h3>
             <div class="comment-list">
                 <!-- 使用 v-for 循环渲染评论列表，每个评论也以帖子的形式呈现 -->
-                <post-card 
-                    v-for="comment in comments" 
-                    :key="comment.id" 
-                    :post="comment"
-                />
+                <post-card v-for="comment in comments" :key="comment.id" :post="comment" />
             </div>
         </div>
     </div>

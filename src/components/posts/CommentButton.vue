@@ -1,4 +1,7 @@
-<template>
+<!-- 评论按钮组件的样式，具有点击后进入详细帖子页面的功能 -->
+ <!-- 需要读取后端评论数量数据 -->
+
+ <template>
   <div class="comment-button">
     <!-- 显示评论按钮，点击时触发添加评论的方法 -->
     <button @click="addComment">Comment</button>
@@ -8,11 +11,17 @@
 </template>
 
 <script>
+import axios from 'axios'; // 确保引入 Axios
+
 export default {
   props: {
     initialCommentCount: {
       type: Number,
       default: 0 // 默认值为 0
+    },
+    postId: {
+      type: Number,
+      required: true // 必须传入 postId
     }
   },
 
@@ -31,24 +40,22 @@ export default {
   },
 
   methods: {
-    // 添加评论的处理方法
-    addComment() {
-      // 这里可以发送请求到后端，添加评论
-      // 假设成功后，增加评论数
-      this.commentCount += 1;
+    
+    // 获取评论数量
+    async fetchCommentCount() {
+      try {
+        const response = await axios.get(`/posts/${this.postId}/comment_count`);
+        
+        this.commentCount = response.data.commentCount || this.initialCommentCount;
+      } catch (error) {
+        console.error("获取评论数量失败:", error);
+      }
+    },
+  },
 
-      // 发送 POST 请求到后端示例
-      /*
-      axios.post('/api/comments', { postId: this.postId })
-        .then(response => {
-          // 成功处理
-          this.commentCount += 1; // 更新评论数
-        })
-        .catch(error => {
-          console.error('添加评论失败:', error);
-        });
-      */
-    }
+  mounted() {
+    // 组件挂载时调用 fetchCommentCount 获取评论数
+    this.fetchCommentCount();
   }
 };
 </script>
