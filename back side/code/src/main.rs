@@ -36,10 +36,6 @@ fn build_pool(database_url: &str, size: u32) -> Result<DbPool, PoolError> {
         .max_lifetime(None)
         .build(manager)
 }
-#[handler]
-async fn hello() -> &'static str {
-    "Hello, world!"
-}
 
 #[tokio::main]
 async fn main() {
@@ -81,7 +77,6 @@ async fn main() {
                 .goal(handler::user::auth)
                 .hoop(auth_handler),
         )
-        .push(Router::with_path("/hello").push(Router::with_path("/123").get(hello)))
         .push(Router::with_path("/ws").goal(handler::ws::user_connected))
         .push(Router::with_path("/register").post(handler::user::register))
         .push(

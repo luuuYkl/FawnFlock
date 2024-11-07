@@ -146,6 +146,8 @@ diesel::table! {
         updated_at -> Nullable<Timestamp>,
         like_count -> Nullable<Integer>,
         comment_count -> Nullable<Integer>,
+        #[max_length = 255]
+        title -> Nullable<Varchar>,
     }
 }
 

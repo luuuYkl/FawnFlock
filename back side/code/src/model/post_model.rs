@@ -15,9 +15,10 @@ pub struct Post {
     pub updated_at: Option<chrono::NaiveDateTime>,
     pub like_count: Option<i32>,
     pub comment_count: Option<i32>,
+    pub title: Option<String>,
 }
 
-#[derive(Insertable, Serialize, Deserialize,Debug)]
+#[derive(Insertable, Serialize, Deserialize, Debug)]
 #[diesel(table_name = posts)]
 pub struct NewPost<'a> {
     pub user_id: Option<i32>,
@@ -26,4 +27,5 @@ pub struct NewPost<'a> {
     pub video_url: Option<&'a str>,
     pub audio_url: Option<&'a str>,
     pub created_at: Option<chrono::NaiveDateTime>,
+    pub title: Option<&'a str>,
 }
