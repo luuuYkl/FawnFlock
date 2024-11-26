@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage1 from '../views/LoginPage/LoginPage1.vue';
+import PostDetail from '../components/posts/PostDetail.vue'; // 请确保路径正确
+
 
 
 const routes = [
@@ -33,7 +35,14 @@ const routes = [
     path: '/post/:id',
     name: 'PostDetail',
     component: () => import('../components/posts/PostDetail.vue')
+  },
+  // 在路由配置文件中 (通常是 router/index.js)
+  {
+    path: '/post/:postId', // 确保这里使用的是 postId，而不是 id
+    name: 'PostDetail',
+    component: PostDetail
   }
+
 ];
 
 
