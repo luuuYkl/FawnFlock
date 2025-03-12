@@ -8,7 +8,7 @@ pub struct Comment {
     pub comment_id: i32,
     pub post_id: Option<i32>,
     pub user_id: Option<i32>,
-    pub comment: Option<String>,
+    pub comment: String,
     pub created_at: Option<chrono::NaiveDateTime>,
 }
 

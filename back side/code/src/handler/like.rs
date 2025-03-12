@@ -1,4 +1,4 @@
-use crate::connect;
+use crate::config::connect;
 use crate::db::schema::likes::dsl::*;
 use crate::model::like_model::Like;
 

@@ -1,4 +1,4 @@
-use crate::connect;
+use crate::config::connect;
 use crate::db::schema::comments::dsl::*;
 use crate::model::comment_model::{Comment, NewComment};
 

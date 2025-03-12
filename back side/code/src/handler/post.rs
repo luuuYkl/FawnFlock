@@ -1,4 +1,4 @@
-use crate::connect;
+use crate::config::connect;
 use crate::db::schema::posts::dsl::*;
 use crate::model::post_model::{NewPost, Post};
 

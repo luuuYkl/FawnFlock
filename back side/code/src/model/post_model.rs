@@ -11,11 +11,11 @@ pub struct Post {
     pub image_url: Option<String>,
     pub video_url: Option<String>,
     pub audio_url: Option<String>,
-    pub created_at: Option<chrono::NaiveDateTime>,
-    pub updated_at: Option<chrono::NaiveDateTime>,
+    pub title: Option<String>,
     pub like_count: Option<i32>,
     pub comment_count: Option<i32>,
-    pub title: Option<String>,
+    pub created_at: Option<chrono::NaiveDateTime>,
+    pub updated_at: Option<chrono::NaiveDateTime>,
 }
 
 #[derive(Insertable, Serialize, Deserialize, Debug)]

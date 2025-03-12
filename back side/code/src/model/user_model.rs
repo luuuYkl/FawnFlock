@@ -14,6 +14,8 @@ pub struct User {
     pub avatar_url: Option<String>,
     //简介
     pub bio: Option<String>,
+    //声纹数据
+    pub voice_fingerprint: Option<String>,
     //创建时间
     pub created_at: Option<chrono::NaiveDateTime>,
     //更新时间
@@ -29,5 +31,6 @@ pub struct NewUser<'a> {
     pub phone: Option<&'a str>,
     pub avatar_url: Option<&'a str>,
     pub bio: Option<&'a str>,
+    pub voice_fingerprint: Option<&'a str>,
     pub created_at: Option<chrono::NaiveDateTime>,
 }

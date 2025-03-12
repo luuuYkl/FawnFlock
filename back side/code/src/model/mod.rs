@@ -1,4 +1,3 @@
-pub mod a_model;
 pub mod user_model;
 pub mod comment_model;
 pub mod post_model;
