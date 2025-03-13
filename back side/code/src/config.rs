@@ -51,6 +51,15 @@ pub fn create_jwt_auth() -> JwtAuth<JwtClaims, ConstDecoder> {
 
 pub fn create_cors_handler() -> CorsHandler {
     Cors::new()
-        .allow_methods(vec![Method::GET, Method::POST, Method::DELETE])
+        .allow_methods(vec![
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
+        .allow_origin(vec!["http://localhost:3000", "http://localhost:8080"])
+        .allow_headers(vec!["Content-Type", "Authorization"])
+        .allow_credentials(true)
         .into_handler()
 }
