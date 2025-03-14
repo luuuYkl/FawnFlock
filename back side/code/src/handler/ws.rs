@@ -3,6 +3,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use futures_util::{FutureExt, StreamExt};
 use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use tokio::sync::{mpsc, RwLock};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
@@ -13,6 +15,29 @@ type Users = RwLock<HashMap<usize, mpsc::UnboundedSender<Result<Message, salvo::
 
 static NEXT_USER_ID: AtomicUsize = AtomicUsize::new(1);
 static ONLINE_USERS: Lazy<Users> = Lazy::new(Users::default);
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum WebSocketEvent {
+    #[serde(rename = "ping")]
+    Ping,
+    #[serde(rename = "pong")]
+    Pong,
+    #[serde(rename = "post_update")]
+    PostUpdate { post_id: String, action: String },
+    #[serde(rename = "comment_update")]
+    CommentUpdate {
+        post_id: String,
+        comment_id: String,
+        action: String,
+    },
+    #[serde(rename = "like_update")]
+    LikeUpdate {
+        post_id: String,
+        user_id: String,
+        action: String,
+    },
+}
 
 #[handler]
 pub async fn user_connected(req: &mut Request, res: &mut Response) -> Result<(), StatusError> {
@@ -61,18 +86,42 @@ async fn user_message(my_id: usize, msg: Message) {
     let msg = if let Ok(s) = msg.as_str() {
         s
     } else {
+        tracing::error!("非文本消息，已忽略");
         return;
     };
 
-    let new_msg = format!("<User#{}>: {}", my_id, msg);
+    let event: WebSocketEvent = match serde_json::from_str(msg) {
+        Ok(event) => event,
+        Err(e) => {
+            tracing::error!(error = ?e, user_id = my_id, "消息解析失败");
+            if let Some(tx) = ONLINE_USERS.read().await.get(&my_id) {
+                let _ = tx.send(Ok(Message::text(
+                    json!({"type": "error", "message": "消息格式错误"}).to_string(),
+                )));
+            }
+            return;
+        }
+    };
 
-    // New message from this user, send it to everyone else (except same uid)...
-    for (&uid, tx) in ONLINE_USERS.read().await.iter() {
-        if my_id != uid {
-            if let Err(_disconnected) = tx.send(Ok(Message::text(new_msg.clone()))) {
-                // The tx is disconnected, our `user_disconnected` code
-                // should be happening in another task, nothing more to
-                // do here.
+    match event {
+        WebSocketEvent::Ping => {
+            if let Some(tx) = ONLINE_USERS.read().await.get(&my_id) {
+                let _ = tx.send(Ok(Message::text(
+                    serde_json::to_string(&WebSocketEvent::Pong).unwrap(),
+                )));
+            }
+        }
+        _ => {
+            // Broadcast the event to all connected users
+            let msg_str = serde_json::to_string(&event).unwrap();
+            for (&uid, tx) in ONLINE_USERS.read().await.iter() {
+                if my_id != uid {
+                    if let Err(_disconnected) = tx.send(Ok(Message::text(msg_str.clone()))) {
+                        // The tx is disconnected, our `user_disconnected` code
+                        // should be happening in another task, nothing more to
+                        // do here.
+                    }
+                }
             }
         }
     }
