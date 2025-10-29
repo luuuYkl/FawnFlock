@@ -1,8 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage1 from '../views/LoginPage/LoginPage1.vue';
-import PostDetail from '../components/posts/PostDetail.vue'; // 请确保路径正确
-
-
 
 const routes = [
   {
@@ -13,7 +10,6 @@ const routes = [
   {
     path: '/about',
     name: 'About',
-    // 懒加载路由.
     component: () => import('../views/AboutView.vue'),
   },
   {
@@ -32,39 +28,27 @@ const routes = [
     component: () => import('../components/PostHomePage.vue'),
   },
   {
+    path: '/home',
+    redirect: '/HomePage'
+  },
+  // 单一路由声明，避免重复
+  {
     path: '/post/:id',
     name: 'PostDetail',
-    component: () => import('../components/posts/PostDetail.vue')
+    component: () => import('../components/posts/PostDetail.vue'),
+    props: true
   },
-  // 在路由配置文件中 (通常是 router/index.js)
+  // 发帖页面
   {
-    path: '/post/:postId', // 确保这里使用的是 postId，而不是 id
-    name: 'PostDetail',
-    component: PostDetail
+    path: '/create-post',
+    name: 'CreatePost',
+    component: () => import('../views/CreatePost.vue')
   }
-
 ];
-
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
-
-// router.beforeEach((to, from, next) => {
-//   const isLoggedIn = localStorage.getItem('isLoggedIn');
-
-//   if (!isLoggedIn && to.name !== 'LoginPage1' && to.name !== 'LoginPagePhoneNumber' && to.name !== 'LoginPagePN2') {
-//     // 如果未登录，且尝试访问非登录页、手机号登录页和验证码登录页，重定向到 LoginPage1
-//     next({ name: 'LoginPage1' });
-//   } else if (isLoggedIn && to.name === 'LoginPage1') {
-//     // 如果已经登录，且尝试访问登录页，重定向到首页
-//     next({ name: 'HomePage' });
-//   } else {
-//     // 否则正常导航
-//     next();
-//   }
-// });
-
 
 export default router;

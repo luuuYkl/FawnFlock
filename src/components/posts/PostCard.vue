@@ -10,8 +10,17 @@
     </div>
     <!-- 点赞和评论按钮 -->
     <div class="post-buttons">
-      <LikeButton style="margin-right:1%" :postId="post.post_id" :userId="post.user_id" />
-      <CommentButton :postId="post.post_id" :initialCommentCount="post.comment_count" @click="navigateToPostDetail" />
+      <LikeButton 
+        style="margin-right:1%" 
+        :postId="post.post_id" 
+        :userId="post.user_id" 
+        :initialLikeCount="post.like_count || 0"
+      />
+      <CommentButton 
+        :postId="post.post_id" 
+        :initialCommentCount="post.comment_count || 0" 
+        @click="navigateToPostDetail" 
+      />
     </div>
   </div>
 </template>
@@ -75,8 +84,8 @@ export default {
         // 检查 postId 是否存在
         if (this.post.post_id) {
             
-          // 跳转到 PostDetail 页面
-          this.$router.push({ name: 'PostDetail', params: { postId: this.post.post_id } })
+          // 跳转到 PostDetail 页面 - 注意参数名是 id 而不是 postId
+          this.$router.push({ name: 'PostDetail', params: { id: this.post.post_id } })
             .then(() => {
               console.log(`成功跳转到 PostDetail 页面，postId: ${this.post.post_id}`);
             })
@@ -97,34 +106,61 @@ export default {
 
 <style scoped>
 .post-card {
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  transition: box-shadow 0.3s;
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  border: 1px solid transparent;
 }
 
 .post-card:hover {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--primary-color);
 }
 
 .post-content h2 {
-  font-size: 1.5em;
-  margin: 0 0 10px;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm);
+  line-height: 1.4;
 }
 
 .post-content p {
-  font-size: 1em;
-  color: #333;
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--spacing-md);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .post-meta {
-  font-size: 0.9em;
-  color: #777;
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-md);
+}
+
+.post-meta span {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .post-buttons {
   display: flex;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color-light);
 }
 </style>

@@ -1,0 +1,50 @@
+[
+  {
+    "comment_id": 1,
+    "post_id": 1,
+    "user_id": 2,
+    "author": "小明",
+    "content": "欢迎欢迎！很高兴加入这个社区！",
+    "created_at": "2025-10-29T10:30:00.000Z"
+  },
+  {
+    "comment_id": 2,
+    "post_id": 1,
+    "user_id": 3,
+    "author": "小红",
+    "content": "期待看到更多精彩内容！",
+    "created_at": "2025-10-29T11:00:00.000Z"
+  },
+  {
+    "comment_id": 3,
+    "post_id": 2,
+    "user_id": 1,
+    "author": "测试用户",
+    "content": "确实很适合出去走走，推荐去公园！",
+    "created_at": "2025-10-29T12:00:00.000Z"
+  },
+  {
+    "comment_id": 4,
+    "post_id": 2,
+    "user_id": 3,
+    "author": "小红",
+    "content": "我准备去爬山，有人一起吗？",
+    "created_at": "2025-10-29T12:30:00.000Z"
+  },
+  {
+    "comment_id": 5,
+    "post_id": 3,
+    "user_id": 2,
+    "author": "小明",
+    "content": "Vue 3 + Rust 的组合确实很棒！我也在学习中。",
+    "created_at": "2025-10-29T14:45:00.000Z"
+  },
+  {
+    "comment_id": 6,
+    "post_id": 1,
+    "user_id": 1,
+    "author": "匿名用户",
+    "content": "sb",
+    "created_at": "2025-10-29T11:09:27.243Z"
+  }
+]

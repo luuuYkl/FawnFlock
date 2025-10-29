@@ -25,21 +25,23 @@ export default {
 </script>
 
 <style scoped>
-.divider {
-    border: none;
-    height: 0.3px;
-    background-color: #bebbbb;
-    margin: 8px 0;
+.base-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-secondary);
 }
 
-.base-layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+.divider {
+  border: none;
+  height: 1px;
+  background-color: var(--border-color-light);
+  margin: 0;
 }
 
 main {
-    flex: 1;
-    padding: 20px;
+  flex: 1;
+  padding: 0;
+  background: var(--bg-gradient);
 }
 </style>

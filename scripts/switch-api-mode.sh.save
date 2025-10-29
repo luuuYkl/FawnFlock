@@ -1,0 +1,12 @@
+./scripts/switch-api-mode.sh mock
+grep VUE_APP_API_MODE .env.local
+./scripts/switch-api-mode.sh real
+grep VUE_APP_API_MODE .env.local
+./scripts/switch-api-mode.sh mock
+grep VUE_APP_API_MODE .env.local
+./scripts/switch-api-mode.sh real
+grep VUE_APP_API_MODE .env.local
+npm run serve
+npm run serve
+"$BROWSER" http://localhost:8080/
+

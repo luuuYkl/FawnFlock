@@ -1,0 +1,489 @@
+======================================
+  FawnFlock 项目全面诊断
+======================================
+
+1. 项目结构:
+.
+├── Father.editorconfig
+├── FawnFlock
+├── README.md
+├── babel.config.js
+├── back side
+│   ├── code
+│   ├── fawn.exe
+│   └── libmariadb.dll
+├── devcontainer.json
+├── diagnose-all.sh
+├── diagnosis-report.txt
+├── jsconfig.json
+├── mock-backend-service
+│   ├── README.md
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── src
+│   └── tsconfig.json
+├── package-lock.json
+├── package.json
+├── public
+│   ├── favicon.ico
+│   └── index.html
+├── scripts
+│   ├── switch-api-mode.sh
+│   └── switch-api-mode.sh.save
+├── src
+│   ├── App.vue
+│   ├── assets
+│   ├── components
+│   ├── config
+│   ├── main.js
+│   ├── router
+│   ├── services
+│   ├── store
+│   ├── stories
+│   ├── utils
+│   └── views
+├── styleguide.config.js
+└── vue.config.js
+
+18 directories, 23 files
+
+2. 当前进程:
+codespa+    1505  1.5  2.1 11891108 177700 ?     Sl   08:58   0:14 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/node /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/out/server-main.js --log trace --force-disable-user-env --server-data-dir /home/codespace/.vscode-remote --accept-server-license-terms --host 127.0.0.1 --port 0 --connection-token-file /home/codespace/.vscode-remote/data/Machine/.connection-token-7d842fb85a0275a4a8e4d7e040d2625abbf7f084 --extensions-download-dir /home/codespace/.vscode-remote/extensionsCache --install-builtin-extension GitHub.vscode-pull-request-github --install-builtin-extension github.github-vscode-theme --install-builtin-extension github.codespaces --do-not-sync --start-server  --enable-remote-auto-shutdown --skip-requirements-check
+codespa+    1527  0.3  0.9 1290340 79560 ?       Sl   08:58   0:03 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/node /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/out/bootstrap-fork --type=ptyHost --logsPath /home/codespace/.vscode-remote/data/logs/20251029T085820
+codespa+    1542  0.4  0.9 1459784 74812 ?       Sl   08:58   0:04 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/node /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/out/bootstrap-fork --type=fileWatcher
+codespa+    4546  0.0  0.0   2808  1792 pts/0    S+   09:02   0:00 sh -c ts-node-dev --respawn --transpile-only src/server.ts
+codespa+    4547  0.1  1.2 1086624 101896 pts/0  Sl+  09:02   0:00 node /workspaces/FawnFlock/mock-backend-service/node_modules/.bin/ts-node-dev --respawn --transpile-only src/server.ts
+codespa+    5550  0.0  0.0   2808  1920 pts/1    S+   09:04   0:00 sh -c ts-node-dev --respawn --transpile-only src/server.ts
+codespa+    5551  0.1  1.2 1086644 102328 pts/1  Sl+  09:04   0:00 node /workspaces/FawnFlock/mock-backend-service/node_modules/.bin/ts-node-dev --respawn --transpile-only src/server.ts
+codespa+    6898  0.0  0.0   2808  1664 pts/2    S+   09:05   0:00 sh -c ts-node-dev --respawn --transpile-only src/server.ts
+codespa+    6899  0.1  1.2 1086868 102104 pts/2  Sl+  09:05   0:00 node /workspaces/FawnFlock/mock-backend-service/node_modules/.bin/ts-node-dev --respawn --transpile-only src/server.ts
+codespa+    6906  0.0  0.7 1015368 60908 pts/2   Sl+  09:05   0:00 /usr/local/share/nvm/versions/node/v22.20.0/bin/node -r /tmp/ts-node-dev-hook-10472713062433936.js /workspaces/FawnFlock/mock-backend-service/node_modules/ts-node-dev/lib/wrap.js src/server.ts
+codespa+    7459  0.0  0.0   2808  1792 pts/3    S    09:06   0:00 sh -c ts-node-dev --respawn --transpile-only src/server.ts
+codespa+    7460  0.1  1.2 1086612 101924 pts/3  Sl   09:06   0:00 node /workspaces/FawnFlock/mock-backend-service/node_modules/.bin/ts-node-dev --respawn --transpile-only src/server.ts
+codespa+    9131 12.0 15.1 78167964 1229512 ?    Sl   09:08   0:39 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/node --dns-result-order=ipv4first /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/out/bootstrap-fork --type=extensionHost --transformURIs --useHostProxy=false
+codespa+    9142  1.0  0.9 1396392 74740 ?       Sl   09:08   0:03 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/node /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/out/bootstrap-fork --type=fileWatcher
+codespa+    9233  0.9  1.2 11696900 100456 ?     Sl   09:08   0:03 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/node /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/extensions/json-language-features/server/dist/node/jsonServerMain --node-ipc --clientProcessId=9131
+codespa+    9972  1.0  1.9 1098704 160676 ?      Sl   09:09   0:03 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/node --max-old-space-size=3072 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/extensions/node_modules/typescript/lib/tsserver.js --serverMode partialSemantic --useInferredProjectPerProjectRoot --disableAutomaticTypingAcquisition --cancellationPipeName /tmp/vscode-typescript1000/737d3993074c1269ffdf/tscancellation-034406285cedbd0fcf33.tmp* --globalPlugins @vscode/copilot-typescript-server-plugin --pluginProbeLocations /home/codespace/.vscode-remote/extensions/github.copilot-chat-0.32.3 --locale zh-cn --noGetErrOnBackgroundUpdate --canUseWatchEvents --validateDefaultNpmLocation --useNodeIpc
+codespa+    9978  5.3  6.2 1432400 509276 ?      Sl   09:09   0:15 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/node --max-old-space-size=3072 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/extensions/node_modules/typescript/lib/tsserver.js --useInferredProjectPerProjectRoot --enableTelemetry --cancellationPipeName /tmp/vscode-typescript1000/737d3993074c1269ffdf/tscancellation-fbd1d2d23777f6a637ea.tmp* --globalPlugins @vscode/copilot-typescript-server-plugin --pluginProbeLocations /home/codespace/.vscode-remote/extensions/github.copilot-chat-0.32.3 --locale zh-cn --noGetErrOnBackgroundUpdate --canUseWatchEvents --validateDefaultNpmLocation --useNodeIpc
+codespa+    9987  0.0  1.0 1043444 86228 ?       Sl   09:09   0:00 /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/node /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/extensions/node_modules/typescript/lib/typingsInstaller.js --globalTypingsCacheLocation /home/codespace/.cache/typescript/5.9 --enableTelemetry --typesMapLocation /vscode/bin/linux-x64/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/extensions/node_modules/typescript/lib/typesMap.json --validateDefaultNpmLocation
+
+3. 端口占用:
+COMMAND  PID      USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+node    6906 codespace   29u  IPv6 962751      0t0  TCP *:7878 (LISTEN)
+  无端口占用
+
+4. App.vue 完整内容:
+--- BEGIN App.vue ---
+<template>
+  <router-view />
+  <!-- 仅在开发环境渲染切换器，避免生产或 Codespace 公共环境意外刷新 -->
+  <ApiModeSwitcher v-if="isDevEnv" />
+</template>
+
+<script>
+import ApiModeSwitcher from './components/DevTools/ApiModeSwitcher.vue';
+export default {
+  name: 'App',
+  components: { ApiModeSwitcher },
+  data() {
+    return {
+      isDevEnv: process.env.NODE_ENV === 'development'
+    };
+  }
+};
+</script>
+
+<style lang="scss">
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+
+nav {
+  padding: 30px;
+}
+
+a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+</style>
+--- END App.vue ---
+
+5. 路由配置完整内容:
+--- BEGIN router/index.js ---
+import { createRouter, createWebHistory } from 'vue-router';
+import LoginPage1 from '../views/LoginPage/LoginPage1.vue';
+
+const routes = [
+  {
+    path: '/',
+    name: 'LoginPage1',
+    component: LoginPage1,
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('../views/AboutView.vue'),
+  },
+  {
+    path: '/LoginPagePhoneNumber',
+    name: 'LoginPagePhoneNumber',
+    component: () => import('../views/LoginPage/LoginPagePhoneNumber.vue'),
+  },
+  {
+    path: '/LoginPagePN2',
+    name: 'LoginPagePN2',
+    component: () => import('../views/LoginPage/LoginPagePN2.vue'),
+  },
+  {
+    path: '/HomePage',
+    name: 'HomePage',
+    component: () => import('../components/PostHomePage.vue'),
+  },
+  // 单一路由声明，避免重复
+  {
+    path: '/post/:id',
+    name: 'PostDetail',
+    component: () => import('../components/posts/PostDetail.vue'),
+    props: true
+  }
+];
+
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes,
+});
+
+export default router;
+--- END router/index.js ---
+
+6. main.js 完整内容:
+--- BEGIN main.js ---
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+import store from './store';
+import { getBaseURL, clearCache } from './config/api.config';
+
+console.log('[Main] 应用初始化');
+
+const app = createApp(App);
+app.use(store);
+app.use(router);
+
+// 暴露调试接口，方便浏览器实时查看/切换 baseURL
+window.__getApiBaseURL = () => {
+  try {
+    return getBaseURL();
+  } catch (e) {
+    console.error('[__getApiBaseURL] error', e);
+    return null;
+  }
+};
+window.__logApiBase = () => {
+  try {
+    console.log('[API Base URL]', window.__getApiBaseURL());
+  } catch (e) {
+    console.error('[__logApiBase] error', e);
+  }
+};
+window.__clearApiCache = () => {
+  try {
+    clearCache();
+    console.log('[API] cache cleared');
+  } catch (e) {
+    console.error('[__clearApiCache] error', e);
+  }
+};
+
+app.mount('#app');
+
+if (process.env.NODE_ENV === 'development') {
+  console.log('[Main] 已挂载，调试函数: window.__logApiBase(), window.__clearApiCache()');
+}
+--- END main.js ---
+
+7. API 配置:
+--- BEGIN api.config.js ---
+/**
+ * API 配置 - 运行时计算，浏览器环境优先使用 Codespaces 转发域名
+ */
+
+const API_MODE = { REAL: 'real', MOCK: 'mock' };
+
+const buildCodespaceURL = (port) => {
+  if (typeof window === 'undefined') return null;
+  const host = window.location.hostname || '';
+  // 将类似 <name>-8080.app.github.dev 替换为 <name>-7878.app.github.dev
+  if (/^.+-\d+\.app.github.dev$/.test(host)) {
+    return `https://${host.replace(/-\d+\.app\.github\.dev$/, `-${port}.app.github.dev`)}`;
+  }
+  if (process.env.CODESPACE_NAME) {
+    return `https://${process.env.CODESPACE_NAME}-${port}.app.github.dev`;
+  }
+  return null;
+};
+
+export const getCurrentMode = () =>
+  localStorage.getItem('VUE_APP_API_MODE') || process.env.VUE_APP_API_MODE || API_MODE.MOCK;
+
+export const getBaseURL = () => {
+  const mode = getCurrentMode();
+  const envMock = process.env.VUE_APP_MOCK_API_URL;
+  const envReal = process.env.VUE_APP_REAL_API_URL;
+  const codespace = buildCodespaceURL(7878);
+
+  const urls = {
+    [API_MODE.MOCK]: envMock || codespace || 'http://localhost:7878',
+    [API_MODE.REAL]: envReal || codespace || 'http://127.0.0.1:7878'
+  };
+  return urls[mode];
+};
+
+export const clearCache = () => {}; // 兼容调用
+export const isMockMode = () => getCurrentMode() === API_MODE.MOCK;
+export const isRealMode = () => getCurrentMode() === API_MODE.REAL;
+
+export const API_ENDPOINTS = {
+  USER_LOGIN: '/api/users/login',
+  USER_REGISTER: '/api/users/register',
+  USER_INFO: (id) => `/api/users/${id}`,
+  POSTS_LIST: '/api/posts',
+  POST_DETAIL: (id) => `/api/posts/${id}`,
+  COMMENTS_LIST: (postId) => `/api/posts/${postId}/comments`
+};
+
+export default {
+  API_MODE,
+  getCurrentMode,
+  getBaseURL,
+  clearCache,
+  isMockMode,
+  isRealMode,
+  API_ENDPOINTS
+};--- END api.config.js ---
+
+8. HTTP 客户端:
+--- BEGIN http.js ---
+import axios from 'axios';
+import { API_ENDPOINTS } from '@/config/api.config';
+import { getBaseURL, getCurrentMode } from '@/config/api.config';
+
+// 有效的 API 模式
+function effectiveMode() {
+  return localStorage.getItem('VUE_APP_API_MODE') || getCurrentMode();
+}
+
+// 有效的基础 URL
+function effectiveBaseURL() {
+  return getBaseURL();
+}
+
+// 创建 axios 实例
+const http = axios.create({
+  baseURL: effectiveBaseURL(),
+  timeout: 10000
+});
+
+// 请求拦截器
+http.interceptors.request.use(
+  (cfg) => {
+    cfg.headers['X-API-Mode'] = effectiveMode();
+    
+    // 从 localStorage 获取 token
+    const token = localStorage.getItem('token');
+    if (token) {
+      cfg.headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return cfg;
+  },
+  (error) => {
+    console.error('请求错误:', error);
+    return Promise.reject(error);
+  }
+);
+
+// 响应拦截器
+http.interceptors.response.use(
+  (r) => r.data,
+  (e) => Promise.reject(e)
+);
+
+export default http;
+export { API_ENDPOINTS };--- END http.js ---
+
+9. 环境配置:
+  .env.local:
+VUE_APP_API_MODE=mock
+VUE_APP_MOCK_API_URL=https://${CODESPACE_NAME}-7878.app.github.dev
+VUE_APP_REAL_API_URL=https://${CODESPACE_NAME}-7878.app.github.dev
+  .env.development:
+# 开发环境配置
+
+# API 模式: mock 或 real
+VUE_APP_API_MODE=mock
+
+# Mock API 地址
+VUE_APP_MOCK_API_URL=http://localhost:7878
+
+# 真实 API 地址
+VUE_APP_REAL_API_URL=http://127.0.0.1:7878
+10. DevTools 组件:
+total 12
+drwxrwxrwx+ 2 codespace codespace 4096 Oct 29 07:27 .
+drwxrwxrwx+ 4 codespace root      4096 Oct 29 07:26 ..
+-rw-rw-rw-  1 codespace codespace 1226 Oct 29 07:27 ApiModeSwitcher.vue
+--- BEGIN ApiModeSwitcher.vue ---
+<template>
+  <div class="api-mode-switcher" v-if="isDev">
+    <span>API: {{ mode }} | {{ baseURL }}</span>
+    <button @click="switchMode('mock')" :disabled="mode==='mock'">Mock</button>
+    <button @click="switchMode('real')" :disabled="mode==='real'">Real</button>
+  </div>
+</template>
+
+<script>
+import { getCurrentMode, getBaseURL } from '@/config/api.config';
+
+export default {
+  name: 'ApiModeSwitcher',
+  data() {
+    return {
+      mode: getCurrentMode(),
+      baseURL: getBaseURL(),
+      isDev: process.env.NODE_ENV === 'development'
+    };
+  },
+  methods: {
+    switchMode(m) {
+      localStorage.setItem('VUE_APP_API_MODE', m);
+      alert(`已切换到 ${m}, 即将刷新`);
+      window.location.reload();
+    }
+  }
+};
+</script>
+
+<style scoped>
+.api-mode-switcher {
+  position: fixed;
+  bottom: 8px;
+  right: 8px;
+  background: #111;
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+button {
+  background: #333;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+button:disabled {
+  opacity: .5;
+  cursor: default;
+}
+button:not(:disabled):hover {
+  background: #555;
+}
+</style>--- END ApiModeSwitcher.vue ---
+
+11. package.json scripts:
+  "scripts": {
+    "serve": "WDS_SOCKET_PROTOCOL=wss WDS_SOCKET_PORT=443 vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "core-js": "^3.8.3",
+    "vue": "^3.2.13",
+
+12. vue.config.js:
+--- BEGIN vue.config.js ---
+const { defineConfig } = require('@vue/cli-service')
+const webpack = require('webpack');
+
+const codespaceHost = process.env.CODESPACE_NAME
+  ? `${process.env.CODESPACE_NAME}-8080.app.github.dev`
+  : 'localhost';
+
+module.exports = defineConfig({
+  transpileDependencies: true,
+  devServer: {
+    host: '0.0.0.0',
+    port: 8080,
+    allowedHosts: 'all',
+    hot: false,               // 临时禁用 HMR，排查重复刷新问题
+    liveReload: false,        // 临时禁用 live reload
+    client: {
+      reconnect: 3,           // 限制重连次数
+      webSocketURL: {
+        protocol: 'wss',
+        hostname: codespaceHost,
+        port: 443,
+        pathname: '/ws'
+      },
+      overlay: {
+        errors: true,
+        warnings: false
+      }
+    }
+  },
+  configureWebpack: {
+    plugins: [
+      new webpack.DefinePlugin({
+        __VUE_OPTIONS_API__: JSON.stringify(true),
+        __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
+        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false)
+      })
+    ]
+  }
+})
+--- END vue.config.js ---
+
+13. 检查可能导致循环的代码:
+  路由跳转:
+src/views/LoginPage/LoginPagePhoneNumber.vue:81:        this.$router.push('/home');
+src/views/LoginPage/LoginPage1.vue:39:      this.$router.push('/LoginPagePhoneNumber').catch(err => console.log(err));
+src/views/LoginPage/LoginPage1.vue:55:        this.$router.push('/home');
+src/views/LoginPage/LoginPagePN2.vue:35:      this.$router.push('/HomePage'); // 跳转到首页
+src/components/posts/CommentButton.vue:54:  //       this.$router.push({ name: 'PostDetail', params: { postId: this.postId } });
+src/components/posts/PostCard.vue:79:          this.$router.push({ name: 'PostDetail', params: { postId: this.post.post_id } })
+
+  mounted/created 钩子:
+src/components/PostHomePage.vue:36:  created() {
+src/components/posts/CommentButton.vue:40:  created() {
+src/components/posts/LikeButton.vue:32:  created() {
+src/components/posts/PostDetail.vue:45:    async mounted() {
+src/components/posts/PostCard.vue:36:  mounted() {
+
+  watch 监听:
+
+14. Mock 后端状态:
+  Mock 后端目录存在
+  package.json scripts:
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "clean": "rm -rf dist"
+  },
+
+======================================
+  诊断完成
+======================================

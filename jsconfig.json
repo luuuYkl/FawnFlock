@@ -15,6 +15,12 @@
       "dom.iterable",
       "scripthost"
     ],
-    "checkJs": false
-  }
+    "skipLibCheck": true,
+    "types": []
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "mock-backend-service"
+  ]
 }

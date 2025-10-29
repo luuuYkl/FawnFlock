@@ -1,0 +1,60 @@
+[
+  {
+    "id": 1,
+    "username": "测试用户",
+    "phone_number": "13800138000",
+    "password": "123456",
+    "avatar_url": "/avatars/default.png",
+    "created_at": "2025-10-29T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "age": 25
+  },
+  {
+    "id": 3,
+    "name": "Alice Johnson",
+    "email": "alice.johnson@example.com",
+    "age": 28
+  },
+  {
+    "id": 4,
+    "name": "Bob Brown",
+    "email": "bob.brown@example.com",
+    "age": 35
+  },
+  {
+    "id": 5,
+    "username": "用户1761729685046",
+    "phone_number": "121221212",
+    "password": "121212",
+    "avatar_url": "/default-avatar.png",
+    "created_at": "2025-10-29T09:21:31.007Z"
+  },
+  {
+    "id": 6,
+    "username": "用户1761731363446",
+    "phone_number": "1",
+    "password": "1",
+    "avatar_url": "/default-avatar.png",
+    "created_at": "2025-10-29T09:49:29.611Z"
+  },
+  {
+    "id": 7,
+    "username": "用户6030",
+    "phone_number": "15257666030",
+    "password": "liaolianMAX2020",
+    "avatar_url": "/default-avatar.png",
+    "created_at": "2025-10-29T10:06:18.400Z"
+  },
+  {
+    "id": 8,
+    "username": "用户1343",
+    "phone_number": "15211111343",
+    "password": "11111111111111111111",
+    "avatar_url": "/default-avatar.png",
+    "created_at": "2025-10-29T11:09:03.902Z"
+  }
+]

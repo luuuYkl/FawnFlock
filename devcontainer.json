@@ -1,0 +1,7 @@
+{
+  "name": "FawnFlock Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "workspaceFolder": "/workspaces/FawnFlock",
+  "forwardPorts": [7878],
+  "postCreateCommand": "echo 'Dev container ready'"
+}

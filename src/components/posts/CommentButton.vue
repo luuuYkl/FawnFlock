@@ -2,12 +2,10 @@
 <!-- 根据postid实现跳转到PostDetial的功能 -->
 
 <template>
-  <div class="comment-button">
-    <!-- 显示评论按钮，点击时触发跳转到帖子详情页面的方法 -->
-    <button>Comment</button>
-    <!-- 显示评论数，超过999时显示999+ -->
-    <span class="comment-count">{{ displayCommentCount }}</span>
-  </div>
+  <button class="comment-btn">
+    <span class="icon">💬</span>
+    <span class="count">{{ displayCommentCount }}</span>
+  </button>
 </template>
 
 <script>
@@ -61,16 +59,33 @@ export default {
 </script>
 
 <style scoped>
-/* 评论按钮组件的样式 */
-.comment-button {
-  display: flex;
-  /* 使用 flexbox 布局 */
+.comment-btn {
+  display: inline-flex;
   align-items: center;
-  /* 垂直居中对齐 */
+  gap: var(--spacing-xs);
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  user-select: none;
 }
 
-.comment-count {
-  margin-left: 10px;
-  /* 评论数与按钮之间的左边距 */
+.comment-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.comment-btn .icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.comment-btn .count {
+  font-weight: var(--font-weight-semibold);
 }
 </style>
