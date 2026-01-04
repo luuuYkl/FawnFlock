@@ -42,6 +42,7 @@ export default {
 main {
   flex: 1;
   padding: 0;
+  padding-bottom: 72px; /* 为底部固定导航留出空间（减小间距） */
   background: var(--bg-gradient);
 }
 </style>

@@ -13,6 +13,14 @@ module.exports = defineConfig({
     allowedHosts: 'all',
     hot: false,               // 临时禁用 HMR，排查重复刷新问题
     liveReload: false,        // 临时禁用 live reload
+    proxy: {
+      '^/api': {
+        target: 'http://localhost:7878',
+        changeOrigin: true,
+        secure: false,
+        logLevel: 'warn'
+      }
+    },
     client: {
       reconnect: 3,           // 限制重连次数
       webSocketURL: {

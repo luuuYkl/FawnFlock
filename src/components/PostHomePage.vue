@@ -9,6 +9,17 @@
       </div>
     </template>
 
+    <!-- 顶部固定搜索栏（在页面滚动时隐藏/显示） -->
+    <div :class="['search-fixed', { hidden: !showSearch }]">
+      <input
+        type="search"
+        v-model="searchQuery"
+        @keydown.enter="onSearch"
+        placeholder="搜索帖子或用户"
+        aria-label="顶部搜索"
+      />
+    </div>
+
     <div class="home" @scroll="handleScroll" ref="scrollContainer">
       <!-- 下拉刷新指示器 -->
       <div v-if="isPulling" class="pull-indicator">
@@ -95,6 +106,9 @@ export default {
   },
   data() {
     return {
+      searchQuery: '',
+      showSearch: true,
+      lastScrollTop: 0,
       posts: [],           // 帖子列表
       loading: false,      // 首次加载状态
       loadingMore: false,  // 加载更多状态
@@ -189,16 +203,31 @@ export default {
       await this.fetchPosts(true);
     },
 
-    // 滚动到底部加载更多
+    // 滚动到底部加载更多，同时根据滚动方向隐藏/显示顶部搜索栏
     handleScroll() {
-      // 获取滚动位置
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const st = window.pageYOffset || document.documentElement.scrollTop || 0;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
 
+      // 根据滚动方向决定是否显示搜索栏
+      const delta = st - (this.lastScrollTop || 0);
+      if (delta > 10) {
+        this.showSearch = false;
+      } else if (delta < -10) {
+        this.showSearch = true;
+      }
+      this.lastScrollTop = st;
+
       // 如果滚动到底部附近（距离底部100px）
-      if (scrollTop + windowHeight >= documentHeight - 100) {
+      if (st + windowHeight >= documentHeight - 100) {
         this.loadMore();
+      }
+    },
+
+    onSearch() {
+      if (!this.searchQuery) return;
+      if (this.$router) {
+        this.$router.push({ name: 'Search', query: { q: this.searchQuery } }).catch(() => {});
       }
     },
 
@@ -308,6 +337,37 @@ export default {
   min-height: calc(100vh - 60px);
   background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
   padding: 20px;
+  /* 给顶部固定搜索栏和 header 留出空间（避免遮挡） */
+  padding-top: 112px; /* header (~56px) + search (~48px) + smaller gap */
+}
+
+/* 固定搜索栏样式 */
+.search-fixed {
+  position: fixed;
+  top: 56px; /* 放在 header 之下，避免覆盖顶部导航 */
+  left: 10px;
+  right: 10px;
+  height: 48px;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.search-fixed.hidden {
+  transform: translateY(-140%);
+  opacity: 0;
+}
+
+.search-fixed input {
+  width: 100%;
+  height: 36px;
+  padding: 6px 10px;
+  border-radius: 18px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  outline: none;
 }
 
 /* 下拉刷新指示器 */

@@ -37,6 +37,7 @@
         <input
           :type="showPassword ? 'text' : 'password'"
           v-model="password"
+          ref="passwordInput"
           placeholder="请输入密码 (6-20位)"
           maxlength="20"
           @input="validatePassword"
@@ -82,6 +83,9 @@
       </div>
       <div v-if="errorMessage" class="message error-message">
         {{ errorMessage }}
+      </div>
+      <div v-if="errorMessage && errorMessage.includes('已注册')" class="error-action">
+        <button type="button" class="action-button" @click="switchToLogin">去登录</button>
       </div>
 
       <!-- 协议勾选 -->
@@ -209,31 +213,43 @@ export default {
       this.loading = true;
       
       try {
-        // 尝试注册（新用户自动注册）
-        const res = await userAPI.register(
-          `用户${this.phoneNumber.slice(-4)}`,
-          this.phoneNumber,
-          this.password
-        );
-        
+        let res;
+
+        if (this.isLogin) {
+          // 登录流程
+          res = await userAPI.login(this.phoneNumber, this.password);
+        } else {
+          // 注册并登录
+          res = await userAPI.register(
+            `用户${this.phoneNumber.slice(-4)}`,
+            this.phoneNumber,
+            this.password
+          );
+        }
+
         // 保存登录信息
         localStorage.setItem('token', res.token || 'mock-token');
         localStorage.setItem('userId', res.user?.id || Date.now());
         localStorage.setItem('username', res.user?.username || `用户${this.phoneNumber.slice(-4)}`);
-        
+
         this.successMessage = '登录成功，即将跳转...';
-        
+
         // 延迟跳转，让用户看到成功提示
         setTimeout(() => {
           this.$router.push('/HomePage');
         }, 1000);
-        
+
       } catch (e) {
         console.error('登录/注册失败:', e);
-        
+
         // 根据错误类型显示不同的提示
-        if (e?.response?.status === 409) {
+        if (!this.isLogin && e?.response?.status === 409) {
+          // 注册时手机号已存在
           this.errorMessage = '该手机号已注册，请直接登录';
+        } else if (this.isLogin && e?.response?.status === 404) {
+          this.errorMessage = '用户不存在，请先注册';
+        } else if (this.isLogin && e?.response?.status === 401) {
+          this.errorMessage = '密码错误';
         } else if (e?.response?.status === 400) {
           this.errorMessage = '手机号或密码格式不正确';
         } else {
@@ -242,6 +258,16 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    switchToLogin() {
+      this.errorMessage = '';
+      this.successMessage = '已切换到登录模式，请输入密码并登录';
+      this.isLogin = true;
+      this.$nextTick(() => {
+        if (this.$refs.passwordInput && this.$refs.passwordInput.focus) {
+          this.$refs.passwordInput.focus();
+        }
+      });
     },
     clearMessage() {
       this.errorMessage = '';

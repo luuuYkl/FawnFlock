@@ -56,5 +56,21 @@
     "password": "11111111111111111111",
     "avatar_url": "/default-avatar.png",
     "created_at": "2025-10-29T11:09:03.902Z"
+  },
+  {
+    "id": 9,
+    "username": "auto_test",
+    "phone_number": "19999999998",
+    "password": "p",
+    "avatar_url": "/default-avatar.png",
+    "created_at": "2026-01-04T00:46:18.728Z"
+  },
+  {
+    "id": 10,
+    "username": "用户8001",
+    "phone_number": "13800138001",
+    "password": "password123",
+    "avatar_url": "/default-avatar.png",
+    "created_at": "2026-01-04T00:51:40.564Z"
   }
 ]

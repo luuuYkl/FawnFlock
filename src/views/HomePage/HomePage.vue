@@ -1,5 +1,16 @@
 <template>
     <div class="page-container">
+      <!-- 顶部固定搜索栏（可隐藏/显示） -->
+      <div :class="['top-search', { hidden: !showSearch }]">
+        <input
+          type="search"
+          v-model="query"
+          @keydown.enter="onSearch"
+          placeholder="搜索帖子或用户"
+          aria-label="搜索"
+        />
+      </div>
+
       <!-- 顶部导航栏 -->
       <header class="header">
         <nav class="top-nav">
@@ -66,6 +77,45 @@
   <script>
   export default {
     name: 'HomePage',
+    data() {
+      return {
+        query: '',
+        showSearch: true,
+        lastScrollTop: 0
+      };
+    },
+    methods: {
+      onSearch() {
+        if (!this.query) return;
+        if (this.$router) {
+          this.$router.push({ name: 'Search', query: { q: this.query } }).catch(() => {});
+        }
+      },
+      onContentScroll(e) {
+        const st = e.target.scrollTop || 0;
+        const delta = st - this.lastScrollTop;
+        if (delta > 10) {
+          // 向下滚动：隐藏
+          this.showSearch = false;
+        } else if (delta < -10) {
+          // 向上滚动：显示
+          this.showSearch = true;
+        }
+        this.lastScrollTop = st;
+      }
+    },
+    mounted() {
+      const contentEl = this.$el.querySelector('.content');
+      if (contentEl) {
+        contentEl.addEventListener('scroll', this.onContentScroll, { passive: true });
+      }
+    },
+    beforeUnmount() {
+      const contentEl = this.$el.querySelector('.content');
+      if (contentEl) {
+        contentEl.removeEventListener('scroll', this.onContentScroll);
+      }
+    }
   };
   </script>
   
@@ -82,6 +132,43 @@
     background-color: #fff;
     padding: 10px;
     border-bottom: 1px solid #ccc;
+  }
+
+  /* 顶部搜索栏样式 */
+  .top-search {
+    position: fixed;
+    top: 56px; /* 放在 header 下方，避免遮挡 */
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    z-index: 1100;
+    transition: transform 200ms ease;
+  }
+
+  .top-search.hidden {
+    transform: translateY(-120%);
+  }
+
+  .top-search input {
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 18px;
+    border: 1px solid #e6e6e6;
+    background: #fafafa;
+    outline: none;
+  }
+
+  /* 给内容区留出顶部空间（header + 搜索栏 合计） */
+  .content {
+    flex-grow: 1;
+    padding: 8px;
+    overflow-y: auto;
+    margin-top: 112px; /* header (~56px) + search (~48px) + smaller gap */
   }
   
   .top-nav {

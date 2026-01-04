@@ -44,6 +44,39 @@ const routes = [
     name: 'CreatePost',
     component: () => import('../views/CreatePost.vue')
   }
+  ,
+  {
+    path: '/me',
+    name: 'UserProfile',
+    component: () => import('../views/UserProfile.vue')
+  }
+  ,
+  {
+    path: '/voice-enroll',
+    name: 'VoiceEnrollment',
+    component: () => import('../views/VoiceEnrollment.vue')
+  }
+  ,
+  {
+    path: '/search',
+    name: 'Search',
+    component: () => import('../views/Search.vue')
+  },
+  {
+    path: '/notifications',
+    name: 'Notifications',
+    component: () => import('../views/Notifications.vue')
+  },
+  {
+    path: '/messages',
+    name: 'Messages',
+    component: () => import('../views/Messages.vue')
+  },
+  {
+    path: '/topics',
+    name: 'Topics',
+    component: () => import('../views/Topics.vue')
+  }
 ];
 
 const router = createRouter({

@@ -55,6 +55,21 @@ export const API_ENDPOINTS = {
   // 评论相关
   COMMENTS_LIST: (postId) => `/api/posts/${postId}/comments`,
   COMMENT_CREATE: (postId) => `/api/posts/${postId}/comments`
+  ,
+  // 语音/声纹相关
+  VOICE_ENROLL: `/api/voices/enroll`,
+  VOICE_UPLOAD_MEDIA: `/api/voices/upload`,
+  VOICES_LIST: `/api/voices`,
+  VOICE_DELETE: (id) => `/api/voices/${id}`,
+
+  // 功能增强：搜索、通知、私信、话题
+  SEARCH: `/api/search`,
+  NOTIFICATIONS_LIST: `/api/notifications`,
+  NOTIFICATION_CREATE: `/api/notifications`,
+  MESSAGES_LIST: `/api/messages`,
+  MESSAGE_CREATE: `/api/messages`,
+  TOPICS_LIST: `/api/topics`,
+  TOPIC_CREATE: `/api/topics`
 };
 
 export default {
