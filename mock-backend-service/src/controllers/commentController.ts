@@ -1,32 +1,15 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
+import dataCache from '../services/DataCache';
 
 const commentsPath = path.join(__dirname, '../data/comments.json');
 const postsPath = path.join(__dirname, '../data/posts.json');
 
-const readComments = () => {
-  const data = fs.readFileSync(commentsPath, 'utf-8');
-  return JSON.parse(data);
-};
-
-const saveComments = (comments: any[]) => {
-  fs.writeFileSync(commentsPath, JSON.stringify(comments, null, 2));
-};
-
-const readPosts = () => {
-  const data = fs.readFileSync(postsPath, 'utf-8');
-  return JSON.parse(data);
-};
-
-const savePosts = (posts: any[]) => {
-  fs.writeFileSync(postsPath, JSON.stringify(posts, null, 2));
-};
-
 // 获取指定帖子的评论列表
 export const getCommentsByPostId = (req: Request, res: Response) => {
   const { postId } = req.params;
-  const comments = readComments();
+  const comments = dataCache.load(commentsPath);
   
   const postComments = comments.filter(
     (c: any) => c.post_id === parseInt(postId)
@@ -49,8 +32,8 @@ export const createComment = (req: Request, res: Response) => {
     return res.status(400).json({ error: '评论内容不能为空' });
   }
   
-  const comments = readComments();
-  const posts = readPosts();
+  const comments = dataCache.load(commentsPath);
+  const posts = dataCache.load(postsPath);
   
   // 检查帖子是否存在
   const postIndex = posts.findIndex((p: any) => p.post_id === parseInt(postId));
@@ -69,11 +52,11 @@ export const createComment = (req: Request, res: Response) => {
   };
   
   comments.push(newComment);
-  saveComments(comments);
+  dataCache.save(commentsPath, comments);
   
   // 更新帖子的评论数
   posts[postIndex].comment_count = (posts[postIndex].comment_count || 0) + 1;
-  savePosts(posts);
+  dataCache.save(postsPath, posts);
   
   res.status(201).json({
     success: true,
@@ -84,7 +67,7 @@ export const createComment = (req: Request, res: Response) => {
 // 删除评论
 export const deleteComment = (req: Request, res: Response) => {
   const { commentId } = req.params;
-  const comments = readComments();
+  const comments = dataCache.load(commentsPath);
   
   const commentIndex = comments.findIndex(
     (c: any) => c.comment_id === parseInt(commentId)
@@ -96,14 +79,14 @@ export const deleteComment = (req: Request, res: Response) => {
   
   const comment = comments[commentIndex];
   comments.splice(commentIndex, 1);
-  saveComments(comments);
+  dataCache.save(commentsPath, comments);
   
   // 更新帖子的评论数
-  const posts = readPosts();
+  const posts = dataCache.load(postsPath);
   const postIndex = posts.findIndex((p: any) => p.post_id === comment.post_id);
   if (postIndex !== -1) {
     posts[postIndex].comment_count = Math.max(0, (posts[postIndex].comment_count || 0) - 1);
-    savePosts(posts);
+    dataCache.save(postsPath, posts);
   }
   
   res.json({ success: true });

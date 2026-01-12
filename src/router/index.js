@@ -4,6 +4,11 @@ import LoginPage1 from '../views/LoginPage/LoginPage1.vue';
 const routes = [
   {
     path: '/',
+    name: 'Login',
+    component: () => import('../views/LoginPage/LoginPageOptimized.vue'),
+  },
+  {
+    path: '/login-old',
     name: 'LoginPage1',
     component: LoginPage1,
   },
@@ -25,6 +30,11 @@ const routes = [
   {
     path: '/HomePage',
     name: 'HomePage',
+    component: () => import('../components/HomePageOptimized.vue'),
+  },
+  {
+    path: '/HomePage-old',
+    name: 'HomePageOld',
     component: () => import('../components/PostHomePage.vue'),
   },
   {
@@ -35,6 +45,12 @@ const routes = [
   {
     path: '/post/:id',
     name: 'PostDetail',
+    component: () => import('../components/posts/PostDetailOptimized.vue'),
+    props: true
+  },
+  {
+    path: '/post-old/:id',
+    name: 'PostDetailOld',
     component: () => import('../components/posts/PostDetail.vue'),
     props: true
   },
@@ -54,7 +70,17 @@ const routes = [
   {
     path: '/voice-enroll',
     name: 'VoiceEnrollment',
+    component: () => import('../views/VoiceEnrollmentOptimized.vue')
+  },
+  {
+    path: '/voice-enroll-old',
+    name: 'VoiceEnrollmentOld',
     component: () => import('../views/VoiceEnrollment.vue')
+  },
+  {
+    path: '/voice-enroll-v2',
+    name: 'VoiceEnrollmentV2',
+    component: () => import('../views/VoiceEnrollmentV2.vue')
   }
   ,
   {
@@ -71,6 +97,11 @@ const routes = [
     path: '/messages',
     name: 'Messages',
     component: () => import('../views/Messages.vue')
+  },
+  {
+    path: '/contacts',
+    name: 'Contacts',
+    component: () => import('../views/Contacts.vue')
   },
   {
     path: '/topics',

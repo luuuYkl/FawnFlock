@@ -35,6 +35,13 @@ router.get('/voices/files/:name', voiceController.serveVoiceFile);
 router.get('/voices', voiceController.listVoices);
 router.delete('/voices/:id', voiceController.deleteVoice);
 
+// 声纹功能路由（与 Python AI 服务集成）
+router.post('/voices/enroll-with-embedding', voiceController.enrollWithEmbedding);
+router.post('/voices/generate-tts', voiceController.generateTTS);
+router.get('/users/:user_id/voice-profile', voiceController.getUserVoiceProfile);
+router.delete('/users/:user_id/voice-profile', voiceController.deleteVoiceProfile);
+router.patch('/users/:user_id/voice-profile', voiceController.updateVoiceProfile);
+
 // 搜索
 router.get('/search', searchController.search);
 

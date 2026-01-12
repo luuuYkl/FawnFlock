@@ -9,18 +9,12 @@
         <main>
             <slot></slot> <!-- 插入页面的内容 -->
         </main>
-
-        <AppFooter /> <!-- 正确使用 AppFooter 组件 -->
     </div>
 </template>
 
 <script>
-import AppFooter from './Footer.vue'; // 确保正确导入组件.
-
 export default {
-    components: {
-        AppFooter // 在 components 中注册 AppFooter
-    }
+    components: {}
 };
 </script>
 

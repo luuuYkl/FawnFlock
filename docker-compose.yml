@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # Python AI 声纹服务
+  voice-ai:
+    build:
+      context: ./voice-ai-service
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - DEBUG=False
+      - UPLOAD_DIR=/app/uploads
+      - GENERATED_DIR=/app/generated
+      - USE_GPU=False
+      - LOG_LEVEL=INFO
+    volumes:
+      - voice_ai_uploads:/app/uploads
+      - voice_ai_generated:/app/generated
+      - voice_ai_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Mock 后端服务
+  mock-backend:
+    build:
+      context: ./mock-backend-service
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VOICE_AI_SERVICE_URL=http://voice-ai:5000
+      - NODE_ENV=development
+    depends_on:
+      voice-ai:
+        condition: service_healthy
+    volumes:
+      - mock_backend_data:/app/data
+      - mock_backend_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/posts"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  # 前端开发服务（可选）
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "8080:8080"
+    environment:
+      - VUE_APP_MOCK_BACKEND_URL=http://mock-backend:3000/api
+    depends_on:
+      - mock-backend
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    restart: unless-stopped
+
+  # 可选：MySQL 数据库（用于 Rust 生产后端）
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=fawnflock
+      - MYSQL_DATABASE=fawnflock
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  voice_ai_uploads:
+  voice_ai_generated:
+  voice_ai_logs:
+  mock_backend_data:
+  mock_backend_logs:
+  mysql_data:
+
+networks:
+  default:
+    name: fawnflock-network

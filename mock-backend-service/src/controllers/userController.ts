@@ -1,24 +1,13 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
 import path from 'path';
+import { dataCache } from '../services/DataCache';
+
 
 const dataPath = path.join(__dirname, '../data/users.json');
-
-// 读取用户数据
-const getUsers = () => {
-  const data = fs.readFileSync(dataPath, 'utf-8');
-  return JSON.parse(data);
-};
-
-// 保存用户数据
-const saveUsers = (users: any[]) => {
-  fs.writeFileSync(dataPath, JSON.stringify(users, null, 2));
-};
-
 // 用户登录
 export const login = (req: Request, res: Response) => {
   const { phone_number, password } = req.body;
-  const users = getUsers();
+  const users = dataCache.load(dataPath);
   
   const user = users.find((u: any) => u.phone_number === phone_number);
   
@@ -47,7 +36,7 @@ export const login = (req: Request, res: Response) => {
 // 用户注册
 export const register = (req: Request, res: Response) => {
   const { username, phone_number, password } = req.body;
-  const users = getUsers();
+  const users = dataCache.load(dataPath);
   
   // 检查手机号是否已存在
   if (users.find((u: any) => u.phone_number === phone_number)) {
@@ -64,7 +53,7 @@ export const register = (req: Request, res: Response) => {
   };
   
   users.push(newUser);
-  saveUsers(users);
+  dataCache.save(dataPath, users);
   
   const token = `mock_token_${newUser.id}_${Date.now()}`;
   
@@ -82,7 +71,7 @@ export const register = (req: Request, res: Response) => {
 // 获取用户信息
 export const getUserById = (req: Request, res: Response) => {
   const { id } = req.params;
-  const users = getUsers();
+  const users = dataCache.load(dataPath);
   
   const user = users.find((u: any) => u.id === parseInt(id));
   
@@ -102,7 +91,7 @@ export const getUserById = (req: Request, res: Response) => {
 export const updateAvatar = (req: Request, res: Response) => {
   const { id } = req.params;
   const { avatar_url } = req.body;
-  const users = getUsers();
+  const users = dataCache.load(dataPath);
   
   const userIndex = users.findIndex((u: any) => u.id === parseInt(id));
   
@@ -111,7 +100,7 @@ export const updateAvatar = (req: Request, res: Response) => {
   }
   
   users[userIndex].avatar_url = avatar_url;
-  saveUsers(users);
+  dataCache.save(dataPath, users);
   
   res.json({
     message: '头像更新成功',

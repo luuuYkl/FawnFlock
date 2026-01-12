@@ -17,17 +17,24 @@
       </div>
     </div>
   </BaseLayout>
+  
+  <BottomNavigation
+    current="Search"
+    :message-badge="0"
+    @navigate="handleNavigate"
+  />
 </template>
 
 <script>
 import BaseLayout from '@/components/BaseLayout.vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 import { /* postAPI, */ } from '@/services/api.service';
 import http from '@/utils/http';
 import { API_ENDPOINTS } from '@/config/api.config';
 
 export default {
   name: 'SearchView',
-  components: { BaseLayout },
+  components: { BaseLayout, BottomNavigation },
   data() {
     return { query: '', results: [], loading: false };
   },
@@ -43,6 +50,9 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    handleNavigate(item) {
+      console.log('导航到:', item.route);
     }
   }
 };

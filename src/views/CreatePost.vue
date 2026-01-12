@@ -59,17 +59,24 @@
       </div>
     </div>
   </BaseLayout>
+  
+  <BottomNavigation
+    current="CreatePost"
+    :message-badge="0"
+    @navigate="handleNavigate"
+  />
 </template>
 
 <script>
 import BaseLayout from '../components/BaseLayout.vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 import { postAPI } from '@/services/api.service';
 
 const DRAFT_KEY = 'create_post_draft_v1';
 
 export default {
   name: 'CreatePost',
-  components: { BaseLayout },
+  components: { BaseLayout, BottomNavigation },
   data() {
     return {
       title: '',
@@ -166,6 +173,9 @@ export default {
       } finally {
         this.submitting = false;
       }
+    },
+    handleNavigate(item) {
+      console.log('导航到:', item.route);
     }
   }
 };

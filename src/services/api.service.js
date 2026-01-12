@@ -108,14 +108,68 @@ export const voiceAPI = {
       filename,
       audio_base64: audioBase64
     });
-  }
-  ,
+  },
+
   getVoices(userId) {
     const params = userId ? { params: { user_id: userId } } : undefined;
     return http.get(API_ENDPOINTS.VOICES_LIST, params);
   },
+
   deleteVoice(id) {
     return http.delete(API_ENDPOINTS.VOICE_DELETE(id));
+  },
+
+  // 新增：声纹功能 API
+
+  /**
+   * 声纹提取与注册（集成 AI 服务）
+   * POST /api/voices/enroll-with-embedding
+   */
+  enrollWithEmbedding(userId, audioBase64, filename = 'voice.wav') {
+    return http.post('/api/voices/enroll-with-embedding', {
+      user_id: userId,
+      audio_base64: audioBase64,
+      filename
+    });
+  },
+
+  /**
+   * 获取用户声纹信息
+   * GET /api/users/:user_id/voice-profile
+   */
+  getVoiceProfile(userId) {
+    return http.get(`/api/users/${userId}/voice-profile`);
+  },
+
+  /**
+   * 删除用户声纹
+   * DELETE /api/users/:user_id/voice-profile
+   */
+  deleteVoiceProfile(userId) {
+    return http.delete(`/api/users/${userId}/voice-profile`);
+  },
+
+  /**
+   * 更新声纹使用权限
+   * PATCH /api/users/:user_id/voice-profile
+   */
+  updateVoiceProfile(userId, voiceEnabled) {
+    return http.patch(`/api/users/${userId}/voice-profile`, {
+      voice_enabled: voiceEnabled
+    });
+  },
+
+  /**
+   * 生成基于用户声音的 TTS（语音克隆）
+   * POST /api/voices/generate-tts
+   */
+  generateTTS(userId, text, postId = null, lang = 'zh-CN') {
+    return http.post('/api/voices/generate-tts', {
+      user_id: userId,
+      post_id: postId,
+      text,
+      lang
+    });
   }
 };
 

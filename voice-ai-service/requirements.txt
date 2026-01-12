@@ -1,0 +1,13 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+librosa==0.10.0
+numpy==1.22.0
+scipy==1.11.2
+soundfile==0.12.1
+torch==2.0.1
+torchaudio==2.0.2
+resemblyzer==0.1.1.dev0
+TTS==0.18.1
+pydantic==2.3.0
+python-dotenv==1.0.0
+gunicorn==21.2.0

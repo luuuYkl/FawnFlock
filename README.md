@@ -15,6 +15,7 @@
 - [功能特性](#功能特性)
 - [快速开始](#快速开始)
 - [项目结构](#项目结构)
+- [声纹功能（新）](#-声纹功能)
 - [开发日志](#开发日志)
 - [API 文档](#api-文档)
 - [测试指南](#测试指南)
@@ -114,6 +115,15 @@ FawnFlock 是一个功能完整的社交媒体平台，支持用户注册、登�
 - [x] 错误提示
 - [x] 空状态设计
 
+#### 5. 声纹功能 🎤 (新增)
+- [x] 声纹提取（Web Audio API）
+- [x] Resemblyzer 256 维向量提取
+- [x] 声纹信息存储
+- [x] 语音克隆 TTS（YourTTS）
+- [x] 帖子语音生成
+- [x] 播放器集成
+- [x] 隐私权限控制
+
 ### 开发中功能 🔄
 
 - [ ] 发帖功能 (CreatePost.vue)
@@ -187,27 +197,117 @@ npm run serve
 ### 生产环境构建
 
 ```bash
-# 构建前端
-npm run build
-
-# 生产环境的后端配置 (Rust)
-# 1. 在 back side/.env 配置数据库
-DATABASE_URL="mysql://username:password@localhost/test"
-JWT_SECRET="your_secret_key"
-
-# 2. 运行 Rust 后端
-cd "back side/code"
-cargo run
-```
-
 ---
 
-## 📁 项目结构
+## 🎤 声纹功能
+
+### 功能介绍
+
+FawnFlock 集成了先进的声纹技术，支持：
+
+1. **声纹提取**：从用户录音中提取 256 维的 Speaker Embedding
+2. **语音克隆**：基于声纹向量，将帖子文本转换为用户的语音
+
+### 架构设计
 
 ```
-FawnFlock/
-├── public/                      # 静态资源
-├── src/                         # 前端源码
+┌─────────────┐
+│  前端应用    │ (Vue 3)
+│ Web Audio API│
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────┐
+│  Mock 后端          │ (Express + TypeScript)
+│ API 服务层          │
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────────────────────┐
+│  Python AI 微服务                   │
+│ - Resemblyzer (声纹提取)            │
+│ - YourTTS (语音克隆)                │
+└─────────────────────────────────────┘
+```
+
+### 快速开始
+
+使用 Docker Compose 快速启动所有服务：
+
+```bash
+# 一键启动
+docker-compose up -d
+
+# 前端：http://localhost:8080
+# Mock 后端：http://localhost:3000
+# Python AI：http://localhost:5000
+```
+
+或者本地开发模式：
+
+```bash
+# 1. 启动 Python AI 服务
+cd voice-ai-service
+python app.py
+
+# 2. 启动 Mock 后端
+cd mock-backend-service
+npm run dev
+
+# 3. 启动前端
+npm run serve
+```
+
+详见 [声纹功能快速开始指南](docs/QUICK_START.md)
+
+### 工作流
+
+#### 1. 声纹提取流程
+
+```
+用户录音 (30-60秒)
+   ↓
+Web Audio API 录制
+   ↓
+转 Base64 编码
+   ↓
+POST /api/voices/enroll-with-embedding
+   ↓
+Resemblyzer 提取 256 维向量
+   ↓
+保存到数据库
+   ↓
+✓ 完成
+```
+
+#### 2. 语音克隆流程
+
+```
+用户发帖 + "启用语音克隆"
+   ↓
+POST /api/voices/generate-tts
+   ↓
+YourTTS 基于 embedding 生成语音
+   ↓
+保存 MP3 文件
+   ↓
+返回播放 URL
+   ↓
+前端显示 🔊 播放按钮
+```
+
+### 关键 API
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/voices/enroll-with-embedding` | POST | 声纹提取与注册 |
+| `/api/users/:id/voice-profile` | GET | 获取用户声纹信息 |
+| `/api/voices/generate-tts` | POST | 生成语音克隆 |
+| `/api/users/:id/voice-profile` | DELETE | 删除声纹 |
+
+详见 [声纹技术规范](docs/VOICE_EMBEDDING_SPEC.md) 和 [实现指南](docs/VOICE_IMPLEMENTATION_GUIDE.md)
+
+---
 │   ├── assets/                  # 资源文件
 │   │   └── styles/
 │   │       └── global.css       # 全局样式系统

@@ -1,400 +1,774 @@
 <template>
-  <BaseLayout>
-    <template v-slot:header>
-      <div class="header-content">
-        <button @click="$router.back()" class="back-button btn ghost" aria-label="返回">
-          <span class="chev">←</span>
-          <span class="label">返回</span>
-        </button>
-        <h1>个人中心</h1>
-        <div style="width:60px"></div>
-      </div>
-    </template>
-
-    <div class="profile-root">
-      <div class="profile-card">
-        <div class="avatar-section">
-          <img :src="user.avatar_url || defaultAvatar" alt="avatar" class="avatar" />
-
-          <input ref="avatarInput" class="avatar-input" type="file" accept="image/*" @change="onAvatarChange" />
-          <div class="avatar-actions">
-            <button class="btn ghost" @click="$refs.avatarInput.click()">选择图片</button>
-            <button class="btn" @click="uploadAvatar" :disabled="!newAvatarData">上传头像</button>
-          </div>
+  <div class="profile-page">
+    <!-- 顶部个人信息区 -->
+    <div class="profile-header">
+      <div class="profile-info">
+        <div class="avatar-wrapper">
+          <img
+            :src="user.avatar_url || defaultAvatar"
+            :alt="user.username"
+            class="profile-avatar"
+            @error="handleImageError"
+          />
+          <button class="edit-avatar-btn" @click="$refs.avatarInput.click()">
+            <span class="icon">📷</span>
+          </button>
+          <input
+            ref="avatarInput"
+            type="file"
+            accept="image/*"
+            style="display: none"
+            @change="onAvatarChange"
+          />
         </div>
-
-        <div class="info-section">
-          <h2>{{ user.username || '匿名用户' }}</h2>
-          <p class="muted">手机号：{{ user.phone_number || '-' }}</p>
-          <p class="muted">加入时间：{{ formattedDate(user.created_at) }}</p>
-
-          <ul class="stats">
-            <li class="stat">
-              <span class="stat-icon">📝</span>
-              <span class="stat-label">帖子</span>
-              <span class="stat-value">{{ myPosts.length }}</span>
-            </li>
-            <li class="stat">
-              <span class="stat-icon">❤️</span>
-              <span class="stat-label">点赞</span>
-              <span class="stat-value">{{ likedPosts.length }}</span>
-            </li>
-            <li class="stat">
-              <span class="stat-icon">👥</span>
-              <span class="stat-label">关注</span>
-              <span class="stat-value">—</span>
-            </li>
-          </ul>
+        
+        <div class="user-details">
+          <h2 class="username">{{ user.username || '未设置昵称' }}</h2>
+          <p class="user-handle">@{{ user.phone_number || 'user' }}</p>
+          <p class="user-bio">{{ user.bio || '这个人很懒，什么都没留下' }}</p>
         </div>
       </div>
-
-      <div class="lists">
-        <div class="tabs">
-          <button :class="{active:activeTab==='posts'}" @click="activeTab='posts'">我的帖子</button>
-          <button :class="{active:activeTab==='likes'}" @click="activeTab='likes'">我的点赞</button>
-          <button :class="{active:activeTab==='voices'}" @click="activeTab='voices'">我的声音</button>
+      
+      <!-- 统计数据 -->
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-value">{{ myPosts.length }}</span>
+          <span class="stat-label">帖子</span>
         </div>
-
-        <div v-if="activeTab==='posts'" class="list">
-          <div v-if="loadingPosts">加载中...</div>
-          <div v-else-if="myPosts.length===0">还没有帖子</div>
-          <ul>
-            <li v-for="p in myPosts" :key="p.post_id" class="post-item">
-              <h3 @click="$router.push(`/post/${p.post_id}`)">{{ p.title }}</h3>
-              <p class="excerpt">{{ excerpt(p.content) }}</p>
-              <div class="meta">{{ p.author }} · {{ relativeTime(p.created_at) }} · ❤️ {{ p.like_count }}</div>
-            </li>
-          </ul>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-value">{{ likedPosts.length }}</span>
+          <span class="stat-label">收藏</span>
         </div>
-
-        <div v-if="activeTab==='likes'" class="list">
-          <div v-if="loadingLikes">加载中...</div>
-          <div v-else-if="likedPosts.length===0">还没有点赞</div>
-          <ul>
-            <li v-for="p in likedPosts" :key="p.post_id" class="post-item">
-              <h3 @click="$router.push(`/post/${p.post_id}`)">{{ p.title }}</h3>
-              <p class="excerpt">{{ excerpt(p.content) }}</p>
-              <div class="meta">{{ p.author }} · {{ relativeTime(p.created_at) }} · ❤️ {{ p.like_count }}</div>
-            </li>
-          </ul>
-        </div>
-        <div v-if="activeTab==='voices'" class="list">
-            <div class="voice-actions" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <button class="btn" @click="showEnrollModal = true">录入声纹</button>
-              <button class="btn ghost" @click="fetchVoices">刷新</button>
-            </div>
-          <div v-if="loadingVoices">加载中...</div>
-          <div v-else-if="myVoices.length===0">还没有录入的声音</div>
-          <ul>
-            <li v-for="v in myVoices" :key="v.id" class="post-item">
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                <div style="flex:1">
-                  <div style="font-weight:600">{{ v.filename }}</div>
-                  <div class="meta">类型：{{ v.type }} · {{ relativeTime(v.created_at) }}</div>
-                </div>
-                <div style="display:flex; gap:8px; align-items:center;">
-                  <audio :src="v.file_url" controls preload="none"></audio>
-                  <button class="btn ghost" @click="deleteVoiceEntry(v.id)">删除</button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <!-- Enroll Modal -->
-        <div v-if="showEnrollModal" class="modal-overlay">
-          <div class="modal">
-            <h3>声纹录入</h3>
-            <div class="modal-section">
-              <h4>实时录音</h4>
-              <div class="controls">
-                <button class="btn" @click="startRecordingModal" :disabled="modalRecording">开始录音</button>
-                <button class="btn ghost" @click="stopRecordingModal" :disabled="!modalRecording">停止</button>
-                <button class="btn" @click="sendRecordingModal" :disabled="!modalRecordedBlob">上传并录入</button>
-              </div>
-              <audio v-if="modalRecordedUrl" :src="modalRecordedUrl" controls></audio>
-            </div>
-
-            <div class="modal-section" style="margin-top:12px;">
-              <h4>上传文件</h4>
-              <input type="file" accept="audio/*,video/*" @change="onModalFileChange" />
-              <div class="controls" style="margin-top:8px;">
-                <button class="btn" @click="uploadModalFile" :disabled="!modalSelectedFile">上传并录入</button>
-              </div>
-              <audio v-if="modalFileUrl" :src="modalFileUrl" controls></audio>
-            </div>
-
-            <div v-if="modalMessage" class="message" style="margin-top:12px">{{ modalMessage }}</div>
-            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
-              <button class="btn ghost" @click="showEnrollModal = false">取消</button>
-            </div>
-          </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-value">—</span>
+          <span class="stat-label">关注</span>
         </div>
       </div>
     </div>
-  </BaseLayout>
+
+    <!-- 功能入口区 -->
+    <div class="function-cards">
+      <button class="function-card" @click="showMyPosts">
+        <span class="card-icon">📝</span>
+        <span class="card-label">我的帖子</span>
+        <span class="card-count">{{ myPosts.length }}</span>
+      </button>
+      <button class="function-card" @click="showMyLikes">
+        <span class="card-icon">⭐</span>
+        <span class="card-label">我的收藏</span>
+        <span class="card-count">{{ likedPosts.length }}</span>
+      </button>
+      <button class="function-card" @click="goToSettings">
+        <span class="card-icon">⚙️</span>
+        <span class="card-label">设置</span>
+        <span class="card-arrow">›</span>
+      </button>
+    </div>
+
+    <!-- 声纹管理模块 -->
+    <div class="voice-section">
+      <div class="section-header">
+        <h3 class="section-title">🎙 我的声音</h3>
+        <p class="section-subtitle">用于朗读、播放、身份识别</p>
+      </div>
+      
+      <!-- 声音卡片列表 -->
+      <div class="voice-cards">
+        <div
+          v-for="voice in myVoices"
+          :key="voice.id"
+          class="voice-card"
+          :class="{ 'voice-training': voice.status === 'training' }"
+        >
+          <div class="voice-header">
+            <span class="voice-icon">🎤</span>
+            <span class="voice-name">{{ voice.name }}</span>
+            <span class="voice-status" :class="`status-${voice.status}`">
+              {{ getStatusText(voice.status) }}
+            </span>
+          </div>
+          
+          <div class="voice-waveform">
+            <div class="waveform-bars">
+              <span v-for="i in 12" :key="i" class="bar" :style="{ height: getBarHeight(i) }"></span>
+            </div>
+          </div>
+          
+          <div class="voice-actions">
+            <button class="action-btn" @click="playVoice(voice)">
+              <span class="icon">▶️</span>
+              <span class="label">播放</span>
+            </button>
+            <button class="action-btn" @click="renameVoice(voice)">
+              <span class="icon">✏️</span>
+              <span class="label">重命名</span>
+            </button>
+            <button class="action-btn danger" @click="deleteVoice(voice)">
+              <span class="icon">🗑️</span>
+              <span class="label">删除</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 添加新声音 -->
+        <button class="voice-card add-voice-card" @click="addNewVoice">
+          <span class="add-icon">+</span>
+          <span class="add-label">添加新的声音</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 其他设置区 -->
+    <div class="settings-section">
+      <div class="setting-item" @click="goToSecurity">
+        <span class="setting-icon">🔒</span>
+        <span class="setting-label">账号与安全</span>
+        <span class="setting-arrow">›</span>
+      </div>
+      <div class="setting-item" @click="goToPrivacy">
+        <span class="setting-icon">🛡️</span>
+        <span class="setting-label">隐私设置</span>
+        <span class="setting-arrow">›</span>
+      </div>
+      <div class="setting-item" @click="goToAbout">
+        <span class="setting-icon">ℹ️</span>
+        <span class="setting-label">关于我们</span>
+        <span class="setting-arrow">›</span>
+      </div>
+      <div class="setting-item" @click="logout">
+        <span class="setting-icon">🚪</span>
+        <span class="setting-label">退出登录</span>
+        <span class="setting-arrow">›</span>
+      </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <BottomNavigation
+      current="UserProfile"
+      @navigate="handleNavigate"
+    />
+  </div>
 </template>
 
 <script>
-import BaseLayout from '../components/BaseLayout.vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 import { userAPI, postAPI, voiceAPI } from '@/services/api.service';
 
 export default {
-  name: 'UserProfile',
-  components: { BaseLayout },
+  name: 'UserProfileView',
+  components: {
+    BottomNavigation
+  },
   data() {
     return {
       user: {},
       userId: Number(localStorage.getItem('userId')) || null,
-      defaultAvatar: '/default-avatar.png',
+      defaultAvatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23E5E7EB"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" font-size="40" fill="%236B7280"%3E👤%3C/text%3E%3C/svg%3E',
       newAvatarFile: null,
-      newAvatarData: null,
       myPosts: [],
       likedPosts: [],
-      myVoices: [],
-      loadingPosts: false,
-      loadingLikes: false,
-      loadingVoices: false,
-      activeTab: 'posts',
-      // modal state
-      showEnrollModal: false,
-      modalRecording: false,
-      modalMediaRecorder: null,
-      modalRecordedChunks: [],
-      modalRecordedBlob: null,
-      modalRecordedUrl: null,
-      modalSelectedFile: null,
-      modalFileUrl: null,
-      modalMessage: ''
+      myVoices: []
     };
   },
   created() {
-    if (this.userId) {
-      this.fetchUser();
-      this.fetchPosts();
-      this.fetchLikedPosts();
-      this.fetchVoices();
-    }
-  },
-  mounted() {
-    // 监听全局事件，其他页面在上传成功后会触发该事件以刷新列表
-    try { window.addEventListener('voices-updated', this.fetchVoices); } catch (e) { console.warn('注册 voices-updated 事件失败', e); }
-  },
-  beforeUnmount() {
-    try { window.removeEventListener('voices-updated', this.fetchVoices); } catch (e) { console.warn('移除 voices-updated 事件失败', e); }
+    this.loadUserData();
   },
   methods: {
-    async fetchVoices() {
-      this.loadingVoices = true;
+    async loadUserData() {
+      if (!this.userId) {
+        this.userId = 1;
+        localStorage.setItem('userId', '1');
+      }
+      
       try {
-        const voices = await voiceAPI.getVoices(this.userId);
-        this.myVoices = voices || [];
-      } catch (e) {
-        console.error('获取声音列表失败', e);
-        this.myVoices = [];
-      } finally {
-        this.loadingVoices = false;
+        const userData = await userAPI.getUserById(this.userId);
+        this.user = userData;
+        
+        const postsData = await postAPI.getPostsByUserId(this.userId);
+        this.myPosts = postsData || [];
+        
+        const likedData = await postAPI.getLikedPosts(this.userId);
+        this.likedPosts = likedData || [];
+        
+        const voicesData = await voiceAPI.getVoicesByUserId(this.userId);
+        this.myVoices = voicesData || this.getMockVoices();
+      } catch (error) {
+        console.error('加载用户数据失败:', error);
+        this.user = { username: '用户', phone_number: '12345678901' };
+        this.myVoices = this.getMockVoices();
       }
     },
-    async deleteVoiceEntry(id) {
-      if (!confirm('确认删除该声纹记录？')) return;
-      try {
-        await voiceAPI.deleteVoice(id);
-        this.myVoices = this.myVoices.filter(v => v.id !== id);
-      } catch (e) {
-        console.error('删除失败', e);
-      }
-    },
-    // Modal based recording/upload
-    async startRecordingModal() {
-      this.modalMessage = '';
-      this.modalRecordedChunks = [];
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        this.modalMediaRecorder = new MediaRecorder(stream);
-        this.modalMediaRecorder.ondataavailable = (e) => {
-          if (e.data && e.data.size > 0) this.modalRecordedChunks.push(e.data);
-        };
-        this.modalMediaRecorder.onstop = () => {
-          this.modalRecordedBlob = new Blob(this.modalRecordedChunks, { type: 'audio/webm' });
-          this.modalRecordedUrl = URL.createObjectURL(this.modalRecordedBlob);
-        };
-        this.modalMediaRecorder.start();
-        this.modalRecording = true;
-      } catch (e) {
-        this.modalMessage = '无法获取麦克风权限';
-        console.error(e);
-      }
-    },
-    stopRecordingModal() {
-      if (this.modalMediaRecorder && this.modalRecording) {
-        this.modalMediaRecorder.stop();
-        this.modalRecording = false;
-      }
-    },
-    async sendRecordingModal() {
-      if (!this.modalRecordedBlob) return;
-      this.modalMessage = '上传中...';
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const base64 = ev.target.result.split(',')[1];
-        const userId = Number(localStorage.getItem('userId')) || 0;
-        try {
-          await voiceAPI.enrollVoice(userId, base64, 'recording.webm');
-          this.modalMessage = '录入成功';
-          this.showEnrollModal = false;
-          this.fetchVoices();
-        } catch (e) {
-          this.modalMessage = '上传失败';
-          console.error(e);
+    
+    getMockVoices() {
+      return [
+        {
+          id: 1,
+          name: '声音 01',
+          status: 'ready',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          name: '声音 02',
+          status: 'training',
+          createdAt: new Date().toISOString()
         }
+      ];
+    },
+    
+    getStatusText(status) {
+      const statusMap = {
+        ready: '已可用 ✓',
+        training: '训练中',
+        error: '异常'
       };
-      reader.readAsDataURL(this.modalRecordedBlob);
+      return statusMap[status] || '未知';
     },
-    onModalFileChange(e) {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      this.modalSelectedFile = f;
-      this.modalFileUrl = URL.createObjectURL(f);
+    
+    getBarHeight(index) {
+      const heights = [40, 70, 50, 85, 60, 90, 75, 55, 80, 65, 45, 50];
+      return `${heights[index % heights.length]}%`;
     },
-    async uploadModalFile() {
-      if (!this.modalSelectedFile) return;
-      this.modalMessage = '上传中...';
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const base64 = ev.target.result.split(',')[1];
-        const userId = Number(localStorage.getItem('userId')) || 0;
-        try {
-          await voiceAPI.uploadMedia(userId, base64, this.modalSelectedFile.name || 'upload');
-          this.modalMessage = '上传成功';
-          this.showEnrollModal = false;
-          this.fetchVoices();
-        } catch (e) {
-          this.modalMessage = '上传失败';
-          console.error(e);
-        }
-      };
-      reader.readAsDataURL(this.modalSelectedFile);
+    
+    handleImageError(e) {
+      e.target.src = this.defaultAvatar;
     },
-    async fetchUser() {
-      try {
-        const res = await userAPI.getUserInfo(this.userId);
-        this.user = res;
-      } catch (e) {
-        console.error('获取用户信息失败', e);
-      }
-    },
+    
     onAvatarChange(e) {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      this.newAvatarFile = f;
+      const file = e.target.files?.[0];
+      if (!file) return;
+      
+      if (file.size > 5 * 1024 * 1024) {
+        alert('图片大小不能超过5MB');
+        return;
+      }
+      
+      this.newAvatarFile = file;
       const reader = new FileReader();
       reader.onload = (ev) => {
-        this.newAvatarData = ev.target.result;
+        this.user.avatar_url = ev.target.result;
       };
-      reader.readAsDataURL(f);
+      reader.readAsDataURL(file);
+      
+      this.uploadAvatar();
     },
+    
     async uploadAvatar() {
-      if (!this.newAvatarData) return;
+      if (!this.newAvatarFile) return;
+      
       try {
-        await userAPI.updateAvatar(this.userId, this.newAvatarData);
-        this.user.avatar_url = this.newAvatarData;
-        this.newAvatarFile = null;
-        this.newAvatarData = null;
-      } catch (e) {
-        console.error('上传头像失败', e);
+        const formData = new FormData();
+        formData.append('avatar', this.newAvatarFile);
+        await userAPI.uploadAvatar(this.userId, formData);
+        alert('头像上传成功');
+      } catch (error) {
+        console.error('头像上传失败:', error);
+        alert('头像上传失败');
       }
     },
-    async fetchPosts() {
-      this.loadingPosts = true;
-      try {
-        const posts = await postAPI.getPosts();
-        this.myPosts = (posts || []).filter(p => Number(p.user_id) === Number(this.userId));
-      } catch (e) {
-        console.error('获取帖子失败', e);
-      } finally {
-        this.loadingPosts = false;
+    
+    showMyPosts() {
+      alert(`您有 ${this.myPosts.length} 篇帖子`);
+    },
+    
+    showMyLikes() {
+      alert(`您收藏了 ${this.likedPosts.length} 篇帖子`);
+    },
+    
+    goToSettings() {
+      alert('设置功能即将开放');
+    },
+    
+    playVoice(voice) {
+      console.log('播放声音:', voice);
+      alert(`播放: ${voice.name}`);
+    },
+    
+    renameVoice(voice) {
+      const newName = prompt('请输入新名称:', voice.name);
+      if (newName && newName.trim()) {
+        voice.name = newName.trim();
       }
     },
-    async fetchLikedPosts() {
-      this.loadingLikes = true;
-      try {
-        // 客户端从 localStorage 读取 liked post ids（若存在）
-        const key = `liked_posts_user_${this.userId}`;
-        const raw = localStorage.getItem(key) || localStorage.getItem('liked_posts');
-        const ids = raw ? JSON.parse(raw) : [];
-        if (!ids || ids.length === 0) {
-          this.likedPosts = [];
-          return;
+    
+    deleteVoice(voice) {
+      if (confirm(`确定要删除 ${voice.name} 吗？`)) {
+        const index = this.myVoices.indexOf(voice);
+        if (index > -1) {
+          this.myVoices.splice(index, 1);
         }
-        const posts = await postAPI.getPosts();
-        this.likedPosts = (posts || []).filter(p => ids.includes(p.post_id));
-      } catch (e) {
-        console.error('获取点赞列表失败', e);
-        this.likedPosts = [];
-      } finally {
-        this.loadingLikes = false;
       }
     },
-    excerpt(text = '') {
-      return text.length > 120 ? text.slice(0, 120) + '...' : text;
+    
+    addNewVoice() {
+      this.$router.push({ name: 'VoiceEnrollment' });
     },
-    relativeTime(ts) {
-      if (!ts) return '';
-      const d = new Date(ts);
-      const diff = Date.now() - d.getTime();
-      const mins = Math.floor(diff / 60000);
-      if (mins < 1) return '刚刚';
-      if (mins < 60) return `${mins}分钟前`;
-      const hours = Math.floor(mins / 60);
-      if (hours < 24) return `${hours}小时前`;
-      const days = Math.floor(hours / 24);
-      return `${days}天前`;
+    
+    goToSecurity() {
+      alert('账号与安全功能即将开放');
     },
-    formattedDate(ts) {
-      if (!ts) return '-';
-      return new Date(ts).toLocaleString();
+    
+    goToPrivacy() {
+      alert('隐私设置功能即将开放');
+    },
+    
+    goToAbout() {
+      alert('关于我们：FawnFlock v1.0');
+    },
+    
+    logout() {
+      if (confirm('确定要退出登录吗？')) {
+        localStorage.removeItem('userId');
+        this.$router.push({ name: 'Login' });
+      }
+    },
+    
+    handleNavigate(item) {
+      console.log('导航到:', item.route);
     }
   }
 };
 </script>
 
 <style scoped>
-.profile-root { max-width: 900px; margin: 20px auto; padding: 12px; }
-.profile-card { display:flex; gap:20px; align-items:center; padding:16px; background:#fff; border-radius:12px; box-shadow:0 6px 24px rgba(0,0,0,0.06); }
-.avatar-section { display:flex; flex-direction:column; align-items:center; gap:12px; width:180px; }
-.avatar { width:140px; height:140px; border-radius:18px; object-fit:cover; border:2px solid rgba(0,0,0,0.06); box-shadow:0 8px 20px rgba(102,126,234,0.12); }
-.avatar-input { display:none; }
-.avatar-actions { display:flex; gap:8px; }
-.btn { background: linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; padding:8px 12px; border-radius:10px; cursor:pointer; }
-.btn.ghost { background: transparent; color:#667eea; border:1px solid rgba(102,126,234,0.15); }
-.btn:disabled { opacity:0.5; cursor:not-allowed; }
-.info-section h2 { margin:0; font-size:20px; }
-.muted { color:#666; margin:4px 0; }
+/* ===== 主容器 ===== */
+.profile-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding-bottom: 56px;
+}
 
-.stats { display:flex; gap:12px; list-style:none; padding:12px 0 0 0; margin:0; }
-.stat { display:flex; flex-direction:column; align-items:center; width:80px; background:linear-gradient(180deg, rgba(102,126,234,0.06), transparent); border-radius:10px; padding:8px; }
-.stat-icon { width:42px; height:42px; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:8px; background:linear-gradient(135deg,#fff,#f7f9ff); box-shadow:0 4px 12px rgba(0,0,0,0.04); }
-.stat-label { font-size:12px; color:#888; margin-top:6px; }
-.stat-value { font-weight:600; margin-top:4px; }
+/* ===== 顶部个人信息区 ===== */
+.profile-header {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  padding: 48px 16px 24px 16px;
+  color: #ffffff;
+}
 
-/* Header / back button */
-.header-content { display:flex; align-items:center; justify-content:space-between; padding:8px 0; }
-.header-content h1 { margin:0; font-size:18px; font-weight:600; text-align:center; flex:1; }
-.back-button { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:10px; font-size:14px; }
-.back-button .chev { font-size:16px; }
-.back-button .label { display:inline-block; }
-.tabs { display:flex; gap:8px; margin-top:16px; }
-.tabs button { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; }
-.tabs button.active { background: linear-gradient(135deg,#667eea,#764ba2); color:#fff; }
-.list { margin-top:12px; }
-.post-item { padding:12px 0; border-bottom:1px solid #f0f0f0; }
-.post-item h3 { margin:0; cursor:pointer; color:#333; }
-.excerpt { margin:6px 0; color:#666; }
-.meta { font-size:12px; color:#999; }
+.profile-info {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
 
-/* Modal styles */
-.modal-overlay { position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; z-index:2000; }
-.modal { width:720px; max-width:95%; background:#fff; border-radius:12px; padding:16px; box-shadow:0 12px 40px rgba(0,0,0,0.25); }
-.modal h3 { margin:0 0 8px 0; }
-.modal-section h4 { margin:0 0 6px 0; font-size:14px; }
+.avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.edit-avatar-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.edit-avatar-btn .icon {
+  font-size: 14px;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.username {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #ffffff;
+}
+
+.user-handle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 8px 0;
+}
+
+.user-bio {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 统计数据 */
+.stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.stat-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== 功能入口区 ===== */
+.function-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px;
+}
+
+.function-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+.function-card:hover {
+  background: #f9fafb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.function-card:active {
+  transform: scale(0.98);
+}
+
+.card-icon {
+  font-size: 28px;
+}
+
+.card-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.card-count {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.card-arrow {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 18px;
+  color: #cbd5e1;
+}
+
+/* ===== 声纹管理模块 ===== */
+.voice-section {
+  padding: 0 16px 16px 16px;
+}
+
+.section-header {
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.voice-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.voice-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s;
+}
+
+.voice-card:not(.add-voice-card):hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.voice-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.voice-icon {
+  font-size: 20px;
+}
+
+.voice-name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.voice-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.status-ready {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-training {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.voice-waveform {
+  margin-bottom: 12px;
+  padding: 12px 0;
+}
+
+.waveform-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 40px;
+  gap: 3px;
+}
+
+.bar {
+  flex: 1;
+  background: linear-gradient(to top, #6366f1, #a5b4fc);
+  border-radius: 2px;
+  transition: height 0.3s ease;
+  min-height: 4px;
+}
+
+.voice-training .bar {
+  animation: waveAnimation 1.5s ease-in-out infinite;
+}
+
+@keyframes waveAnimation {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.voice-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  color: #475569;
+}
+
+.action-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.action-btn.danger {
+  color: #dc2626;
+}
+
+.action-btn.danger:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.action-btn .icon {
+  font-size: 14px;
+}
+
+/* 添加新声音卡片 */
+.add-voice-card {
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-voice-card:hover {
+  border-color: #6366f1;
+  background: #f0f4ff;
+}
+
+.add-icon {
+  font-size: 32px;
+  color: #6366f1;
+}
+
+.add-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6366f1;
+}
+
+/* ===== 其他设置区 ===== */
+.settings-section {
+  padding: 0 16px 16px 16px;
+}
+
+.setting-item {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  margin-bottom: 8px;
+}
+
+.setting-item:hover {
+  background: #f9fafb;
+  transform: translateX(4px);
+}
+
+.setting-item:active {
+  transform: scale(0.98);
+}
+
+.setting-icon {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+
+.setting-label {
+  flex: 1;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.setting-arrow {
+  font-size: 20px;
+  color: #cbd5e1;
+}
+
+/* ===== 响应式设计 ===== */
+@media (max-width: 480px) {
+  .profile-header {
+    padding: 40px 12px 20px 12px;
+  }
+  
+  .profile-avatar {
+    width: 72px;
+    height: 72px;
+  }
+  
+  .username {
+    font-size: 18px;
+  }
+  
+  .function-cards {
+    gap: 8px;
+    padding: 12px;
+  }
+  
+  .function-card {
+    padding: 16px 8px;
+  }
+  
+  .card-icon {
+    font-size: 24px;
+  }
+  
+  .card-label {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  .profile-page {
+    max-width: 640px;
+    margin: 0 auto;
+    border-left: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+  }
+}
 </style>
